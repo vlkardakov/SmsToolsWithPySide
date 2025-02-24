@@ -209,6 +209,23 @@ class Ui_MainWindow(object):
         icon5 = QIcon()
         icon5.addFile(u"icons/refresh.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.restart.setIcon(icon5)
+        self.save = QPushButton(self.input_form)
+        self.save.setObjectName(u"save")
+        self.save.setGeometry(QRect(530, 50, 41, 31))
+        self.save.setStyleSheet(u"QPushButton {\n"
+"background-color: rgba(255,255,255,20);\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background-color: rgba(255,255,255,50);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background-color: rgba(255,255,255,80);\n"
+"}")
+        icon6 = QIcon()
+        icon6.addFile(u"icons/save.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.save.setIcon(icon6)
         self.add_contact.raise_()
         self.display_name.raise_()
         self.display_number.raise_()
@@ -224,6 +241,7 @@ class Ui_MainWindow(object):
         self.analyze.raise_()
         self.get_messages.raise_()
         self.restart.raise_()
+        self.save.raise_()
         self.output_form = QFrame(self.centralwidget)
         self.output_form.setObjectName(u"output_form")
         self.output_form.setGeometry(QRect(10, 430, 581, 61))
@@ -248,9 +266,9 @@ class Ui_MainWindow(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        icon6 = QIcon()
-        icon6.addFile(u"icons/bolt.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.sendButton.setIcon(icon6)
+        icon7 = QIcon()
+        icon7.addFile(u"icons/bolt.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.sendButton.setIcon(icon7)
 
         self.gridLayout.addWidget(self.sendButton, 4, 1, 2, 1)
 
@@ -300,8 +318,15 @@ class Ui_MainWindow(object):
         self.settings.setText(QCoreApplication.translate("MainWindow", u"\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438", None))
         self.open_folder.setText(QCoreApplication.translate("MainWindow", u"\u0424\u0430\u0439\u043b\u044b", None))
         self.analyze.setText(QCoreApplication.translate("MainWindow", u"\u0410\u043d\u0430\u043b\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0434\u0430\u043d\u043d\u044b\u0435", None))
+#if QT_CONFIG(tooltip)
+        self.get_messages.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>2</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(whatsthis)
+        self.get_messages.setWhatsThis(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><br/></p></body></html>", None))
+#endif // QT_CONFIG(whatsthis)
         self.get_messages.setText(QCoreApplication.translate("MainWindow", u"\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u044f", None))
         self.restart.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043c\u043e\u0434\u0435\u043c", None))
+        self.save.setText("")
         self.sendButton.setText(QCoreApplication.translate("MainWindow", u"\u041e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c!", None))
     # retranslateUi
 

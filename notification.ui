@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>Notification</class>
+ <widget class="QWidget" name="Notification">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>201</width>
+    <width>200</width>
     <height>120</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>200</width>
+    <height>120</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>200</width>
+    <height>120</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Уведомление</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.934, y1:1, x2:0.127, y2:0.244, stop:0 rgba(10, 13, 18, 255), stop:1 rgba(54, 63, 80, 255));</string>
@@ -64,8 +76,11 @@ color: white;</string>
         <property name="focusPolicy">
          <enum>Qt::StrongFocus</enum>
         </property>
+        <property name="styleSheet">
+         <string notr="true">font: 11pt</string>
+        </property>
         <property name="text">
-         <string/>
+         <string>ОК</string>
         </property>
        </widget>
       </item>

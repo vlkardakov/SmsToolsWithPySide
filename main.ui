@@ -29,7 +29,7 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>Beta app</string>
+   <string>Центр управления сообщениями</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.934, y1:1, x2:0.127, y2:0.244, stop:0 rgba(10, 13, 18, 255), stop:1 rgba(54, 63, 80, 255));
@@ -366,6 +366,12 @@ background-color: rgba(255,255,255,80);
        <height>31</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {
 background-color: rgba(255,255,255,20);
@@ -417,6 +423,36 @@ background-color: rgba(255,255,255,80);
        <normaloff>icons/refresh.svg</normaloff>icons/refresh.svg</iconset>
      </property>
     </widget>
+    <widget class="QPushButton" name="save">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>50</y>
+       <width>41</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+background-color: rgba(255,255,255,20);
+}
+
+QPushButton:hover {
+background-color: rgba(255,255,255,50);
+}
+
+QPushButton:pressed {
+background-color: rgba(255,255,255,80);
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>icons/save.svg</normaloff>icons/save.svg</iconset>
+     </property>
+    </widget>
     <zorder>add_contact</zorder>
     <zorder>display_name</zorder>
     <zorder>display_number</zorder>
@@ -432,6 +468,7 @@ background-color: rgba(255,255,255,80);
     <zorder>analyze</zorder>
     <zorder>get_messages</zorder>
     <zorder>restart</zorder>
+    <zorder>save</zorder>
    </widget>
    <widget class="QFrame" name="output_form">
     <property name="geometry">
