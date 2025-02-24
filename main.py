@@ -1,6 +1,7 @@
 import os, psutil, sys, subprocess, serial, time
 import pandas as pd
 from Continue import Continue
+from types import SimpleNamespace
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget
 from openpyxl import load_workbook, Workbook
@@ -22,17 +23,25 @@ class SmsTools(QMainWindow):
 
         # Чтение настроек
         self.settings = self.read_settings()
-        self.settings.port = None # Настроить
+        self.settings['port'] = None # Настроить
 
+        # Настройка файлов
+        self.files = SimpleNamespace()
+        self.filePaths = SimpleNamespace()
+        self.filePaths.smsLog = "Files/sms_log.xlsx"
+        self.filePaths.contacts = "Files/contacts.csv"
+        self.files.smsLog = load_workbook(self.filePaths.smsLog, data_only=True) # Загружаем
+        self.files.contacts = load_workbook(self.filePaths.contacts, data_only=True) # Загружаем
 
         # Инициализация модема
         self.kill_connect_manager() # Отключение коннект-менеджера
-        with serial.Serial(self.settings['port'], self.settings['speed'], timeout=1) as ser: # Подключение к модему
+        self.modemSession = serial.Serial(self.settings['port'], self.settings['speed'], timeout=1) # настройка сессии
+
+        with self.modemSession as ser: # Подключение к модему
             self.send_at_command(ser, 'AT+CMGF=1') # Задание текстового формата
             self.send_at_command(ser, 'AT+CPMS="ME","ME","ME"') # переключение на внутреннюю память
 
 
-        #
 
         # Привязка кнопок
         self.ui.sendButton.clicked.connect(self.get_selected_numbers)
@@ -42,7 +51,6 @@ class SmsTools(QMainWindow):
         self.ui.save.clicked.connect(self.edit_contacts)
         self.ui.search.clicked.connect(self.load_contacts)
         self.ui.settings.clicked.connect(self.openSettings)
-
 
     def add_contacts(self):
         print("Начинаю добавление...")
@@ -76,12 +84,208 @@ class SmsTools(QMainWindow):
         self.load_contacts()
         print(f"Контакты успешно добавлены в {file_path}")
         return None
+    # Функция для объединения длинных сообщений
+    def combine_long_messages(self, messages):
+        combined_messages = []
+        for message in messages:
+            combined_messages.append(message)
+        return combined_messages
+
+    def num_to_name(self, num):
+        # преобразует номер в имя
+        wb = self.files.contacts
+        ws = wb.active
+        # print(f"Искомый номер: {num}")
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            phone_number, contact_name = row
+            if phone_number:
+                phone_number = f"+7{phone_number}".replace(" ", "")
+                # print(f"Номер контакта: {phone_number}")
+
+                if phone_number == num:
+                    return contact_name
+        return num
+
+    # Функция для парсинга ответа AT+CMGL и извлечения SMS сообщений
+    def parse_sms_response(self, response):
+        messages = []
+        lines = response.splitlines()
+        i = 0
+        '''
+        пример сообщения: 
+        +CMGL: 10,"REC READ","+79875324724",,"24/11/15,14:35:51+12"
+        Hello!
+        Или:
+
+        '''
+        while i < len(lines):
+            if "+CMGL: " in lines[i]:
+                parts = lines[i].split(",")
+                index = parts[0].split(": ")[1].strip()
+                sender_number = parts[2].strip('"')
+                date_and_time = lines[i].split(",,")[1].replace('"', '').split(',')
+                # print(f"{date_and_time=}")
+                date_dates = date_and_time[0].split("/")
+                date_date = f"{date_dates[2]}.{date_dates[1]}.{date_dates[0]}"
+                # print(f"ДАТА = {date_date}")
+
+                date_time = date_and_time[1].split("+")[0].split("-")[0]
+                # print(f"ВРЕМЯ = {date_time}")
+
+                message_lines = []
+
+                # Проверяем, есть ли следующая строка
+                if i + 1 < len(lines):
+                    # Если следующая строка не начинается с "+CMGL: ", то добавляем ее к сообщению
+                    j = i + 1
+                    while j < len(lines) and "+CMGL: " not in lines[j]:
+                        if "OK" in lines[j]:
+                            break
+                        message_lines.append(lines[j].strip())
+                        j += 1
+                    i = j - 1  # Установим индекс на последнюю строку сообщения
+
+                # Декодируем строки сообщения
+                decoded_lines = []
+                for line in message_lines:
+                    try:
+                        # Преобразуем сообщение в формат UCS2
+                        decoded_line = bytes.fromhex(line).decode('utf-16be')
+                        decoded_lines.append(decoded_line)
+                    except (ValueError, UnicodeDecodeError):
+                        # Если декодирование не удалось, оставляем все строки сообщения в первоначальном виде
+                        decoded_lines = message_lines
+                        break
+
+                message = '\n'.join(decoded_lines)
+
+                # Преобразуем дату в формат DD/MM/YYYY
+                # formatted_date = format_date(date.strip())
+
+                messages.append({
+                    "index": index,
+                    "sender_number": sender_number,
+                    "date": date_date,
+                    "time": date_time,
+                    "message": message.strip()
+                })
+            i += 1
+        return messages
+    def get_all_contacts(self):
+        try:
+            df = pd.read_excel(self.filePaths.contacts)
+        except Exception as e:
+            print(f"Ошибка при чтении файла контактов: {e}")
+            return {}
+
+        required_columns = ['Номер телефона', 'Имя маячка']
+        for column in required_columns:
+            if column not in df.columns:
+                print(f"Отсутствует ожидаемый столбец: '{column}'")
+                return {}
+
+        contacts = {}
+        for index, row in df.iterrows():
+            # print(row['Номер телефона'])
+            # Приведение номеров телефонов к строковому формату без лишних символов
+            phone_number = str(row['Номер телефона']).replace(' ', '').replace('-', '')
+            contacts[phone_number] = row['Имя маячка']
+        return contacts
+    def read_sms_and_save(self):
+        global contacts_window, speed
+        with self.modemSession as ser:
+            # print("Проверяем...")
+            response = self.send_at_command('AT+CMGL="ALL"')
+
+            # Обработка ответа и запись в Excel
+            sms_messages = self.parse_sms_response(response)
+            combined_messages = self.combine_long_messages(sms_messages)
+
+            # Проверяем, существует ли файл с контактами
+            if not os.path.exists(self.filePaths.contacts):
+                print(f"Файл контактов не найден.")
+                return
+
+            contacts = self.get_all_contacts() ####
+
+            # Вывод содержимого SMS
+            if combined_messages:
+                # print()
+                # print("Найдены SMS сообщения:", end = '')
+                latest_name = "test4d!"
+                log = ""
+                for sms in combined_messages:
+                    # print('')
+                    name = num_to_name(sms['sender_number'])
+                    log += f"{num_to_name(sms['sender_number'])}: {sms['message']}  {sms['time']}\n"
+                    if name != latest_name:
+                        print(f">> {num_to_name(sms['sender_number'])}: \n{sms['message']}")
+                    else:
+                        print(f"{sms['message']}")
+                    latest_name = name
+                    contacts_window.refresh()
+                append_to_excel(combined_messages, contacts, output_file)
+                # print("Добавлено, удаляем")
+                # Удаление
+                # по индексу
+                for sms in combined_messages:
+                    # print(f"удаляем {sms}")
+                    send_at_command0(ser, f"AT+CMGD={sms['index']}")
+                return log
+            else:
+                cy = 1
+                if cy == 15:
+                    cy = 1
+                return ""
+
+    def append_to_excel(self, sms_messages):
+        if not sms_messages:  # Если нет новых сообщений, не записываем в таблицу
+            return
+        wb = self.files.smsLog
+        ws = wb.active
+
+
+        settings = self.settings
+        sleep_time = int(settings.get('sleep_time', 0))  # Значение sleep_time из файла настроек
+
+        for sms in sms_messages:
+            sender_number = sms["sender_number"].replace(' ', '').replace('-',
+                                                                          '')  # Убираем только пробелы и дефисы, сохраняем +
+            contact_name = self.num_to_name(sms['sender_number'])
+            message = sms["message"] if sms["message"] else "Без текста"
+            date_received = sms["date"]
+            current_date = datetime.now().strftime('%d/%m/%Y')
+            current_time = datetime.now().strftime('%H:%M:%S')
+
+            # Ищем существующую строку с таким же номером и временем
+            existing_row = None
+            for row in ws.iter_rows(min_row=2, values_only=False):
+                if (row[0].value == sender_number and
+                        row[3].value == date_received and
+                        abs((datetime.strptime(current_time, '%H:%M:%S') - datetime.strptime(row[4].value,
+                                                                                             '%H:%M:%S')).total_seconds()) <= sleep_time + 30):
+                    existing_row = row
+                    break
+
+            if existing_row:
+                # Если найдена существующая строка, добавляем к ней новое сообщение
+                existing_row[2].value += "\n" + message
+                # Увеличиваем высоту строки
+                lines = existing_row[2].value.count('\n') + 1
+                ws.row_dimensions[existing_row[0].row].height = 13.7
+            else:
+                # Если не найдена существующая строка, добавляем новую
+                ws.append([sender_number, contact_name, message, date_received, current_time])
+                # Устанавливаем высоту строки
+                lines = message.count('\n') + 1
+                ws.row_dimensions[ws.max_row].height = 13.7
+
+        wb.save(self.filePaths.smsLog)
+        self.files.smsLog = wb
 
     def restart_modem(self):
-        with serial.Serial(modem_port, self.settings['speed'], timeout=1) as ser:
-            res = self.send_at_command(ser, 'AT+CFUN=1,1')
-            return True if "OK" in res else False
-
+        res = self.send_at_command('AT+CFUN=1,1')
+        return True if "OK" in res else False
     def kill_connect_manager(self):
         try:
             # Ищем процесс Connect Manager
@@ -106,11 +310,12 @@ class SmsTools(QMainWindow):
     def openSettings(self): # Открывает настройки
         self.settingsWindow = settings.Settings()
         self.settingsWindow.show()
-    def send_at_command(self, ser, command, response_timeout=1): # Отправляет команду на порт через уже активное подключение
-        ser.write((command + '\r\n').encode())
-        time.sleep(response_timeout)
-        response = ser.read_all().decode()
-        return response
+    def send_at_command(self,command, response_timeout=1): # Отправляет команду на порт через уже активное подключение
+        with self.modemSession as ser:
+            ser.write((command + '\r\n').encode())
+            time.sleep(response_timeout)
+            response = ser.read_all().decode()
+            return response
 
 
 
@@ -209,14 +414,10 @@ class SmsTools(QMainWindow):
         return df
 
     def analyze_sms_log(self, contacts_file, sms_log_file, analysis_file):
-        contacts = self.search_contacts(contacts_file, "0 1 2 3 4 5 6 7 8 9")
         sms_log = self.load_sms_log(sms_log_file)
 
         if sms_log.empty:
             print(f"Список сообщений пуст.")
-            return
-        if not contacts:
-            print(f"Не удалось загрузить контакты.")
             return
         #Получение даты и времени
         today_date, current_time = self.get_current_datetime()
@@ -231,13 +432,6 @@ class SmsTools(QMainWindow):
         sms_log.iloc[:, date_column_index] = pd.to_datetime(sms_log.iloc[:, date_column_index], format='%d/%m/%Y',
                                                             errors='coerce').dt.strftime('%d/%m/%Y')
 
-        #получаем номера телефонов, которые отправляли SMS за последние сутки
-        recent_sms = sms_log[sms_log.iloc[:, date_column_index].isin([today_date, yesterday_date])]
-        recent_sms_numbers = recent_sms.iloc[:, phone_column_index].str.replace(' ', '').str.replace('-', '').replace(
-            "+7", "").unique()
-
-        #определяем контакты, которые не прислали SMS за последние сутки
-        missing_contacts = {number: name for number, name in contacts.items() if number not in recent_sms_numbers}
 
         #определяем номер анализа
         try:
