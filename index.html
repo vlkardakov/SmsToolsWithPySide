@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Gradient - Could Be Better</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0c0f14;
+            font-family: sans-serif;
+        }
+
+        .gradient-container {
+            position: relative;
+            /* Explicit width and height for the "window" effect */
+            width: 600px;
+            height: 500px;
+            max-width: 100%; /* Allow scaling down on smaller screens */
+            overflow: hidden;
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            --color-a: #0c0f14;
+            --color-b: #323b4b;
+            --color-c: #1e242e;
+            background: linear-gradient(45deg, var(--color-a), var(--color-b), var(--color-c));
+            background-size: 300% 300%;
+            animation: gradientAnimation 10s ease infinite;
+        }
+
+        .gradient-container::before,
+        .gradient-container::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.6;
+            filter: blur(50px);
+        }
+
+        .gradient-container::before {
+            width: 300px;
+            height: 300px;
+            top: -50px;
+            left: 50px;
+            background: var(--color-a);
+            animation: blobAnimation 6s infinite ease, drift 12s linear infinite;
+        }
+
+        .gradient-container::after {
+            width: 350px;
+            height: 350px;
+            bottom: 0;
+            right: 0;
+            background: var(--color-b);
+            animation: blobAnimation 7s infinite ease, driftReverse 15s linear infinite;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        @keyframes blobAnimation {
+            0% {
+                transform: translate(0px, 0px) scale(1);
+            }
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+            100% {
+                transform: translate(0px, 0px) scale(1);
+            }
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(-100px)); }
+        }
+
+        @keyframes driftReverse {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100px)); }
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="gradient-container">
+        <div class="content">
+        </div>
+    </div>
+</body>
+</html>
