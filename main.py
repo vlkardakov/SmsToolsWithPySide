@@ -3,7 +3,7 @@ import pandas as pd
 from Continue import Continue
 from PySide6.QtGui import QTextCursor
 from types import SimpleNamespace
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer, QTime
 import serial.tools.list_ports as list_ports
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget
 from openpyxl import load_workbook, Workbook
@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 import settings
 from ui_main import Ui_MainWindow
 from Notification import Notification
+import cv2
+from PySide6.QtGui import QImage, QPixmap, QPainter
 
 
 class SmsTools(QMainWindow):
@@ -21,14 +23,25 @@ class SmsTools(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        # Инициализация видео
+        self.capture = cv2.VideoCapture('violet.mp4')
+        self.snapshot = QPixmap()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        self.start_time = QTime.currentTime()
 
+        # Запускаем воспроизведение
+        self.timer.start(30)  # 30ms = ~33fps
+
+        # Делаем фон прозрачным
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.ui.centralwidget.setStyleSheet("background: transparent;")
 
         # Чтение настроек
         self.settings = self.read_settings()
-        self.settings['port'] = None # Настроить
+        self.settings['port'] = None  # Настроить
         self.canModem = False
         self.incomingCount = 0
-
 
         self.files = SimpleNamespace()
         self.filePaths = SimpleNamespace()
@@ -69,7 +82,6 @@ class SmsTools(QMainWindow):
             ws.title = "Contacts"
             ws.append(["Phone Number", "Contact Name"])
 
-
         ws.append(contact)
 
         wb.save(file_path)
@@ -87,17 +99,17 @@ class SmsTools(QMainWindow):
 
         self.filePaths.smsLog = "Files/sms_log.xlsx"
         self.filePaths.contacts = "Files/contacts.xlsx"
-        self.files.smsLog = load_workbook(self.filePaths.smsLog, data_only=True) # Загружаем
-        self.files.contacts = load_workbook(self.filePaths.contacts, data_only=True) # Загружаем
-        self.contacts = self.get_all_contacts() # Загружаем
+        self.files.smsLog = load_workbook(self.filePaths.smsLog, data_only=True)  # Загружаем
+        self.files.contacts = load_workbook(self.filePaths.contacts, data_only=True)  # Загружаем
+        self.contacts = self.get_all_contacts()  # Загружаем
 
         # Инициализация модема
-        self.kill_connect_manager() # Отключение коннект-менеджера
-        self.find_modem() # Попытка найти модем
-        if self.canModem: # Если модем найден, подключение. ОБязательные вещи.
-            print(self.send_at_command('AT+CMGF=1')) # Задание текстового формата
-            self.send_at_command('AT+CPMS="ME","ME","ME"') # переключение на внутреннюю память
-            #self.conprint(self.modem.read())
+        self.kill_connect_manager()  # Отключение коннект-менеджера
+        self.find_modem()  # Попытка найти модем
+        if self.canModem:  # Если модем найден, подключение. ОБязательные вещи.
+            print(self.send_at_command('AT+CMGF=1'))  # Задание текстового формата
+            self.send_at_command('AT+CPMS="ME","ME","ME"')  # переключение на внутреннюю память
+            # self.conprint(self.modem.read())
 
     # Функция для объединения длинных сообщений
     def combine_long_messages(self, messages):
@@ -105,12 +117,14 @@ class SmsTools(QMainWindow):
         for message in messages:
             combined_messages.append(message)
         return combined_messages
-    def send_at_command(self,command, timeout=0.1):
+
+    def send_at_command(self, command, timeout=0.1):
         with serial.Serial(self.settings['port'], self.settings['speed'], timeout=timeout) as ser:
             ser.write((command + '\r\n').encode())
             time.sleep(timeout)
             response = ser.read_all().decode()
             return response
+
     def find_modem(self):
         # Находим все доступные COM порты
         available_ports = list_ports.comports()
@@ -154,9 +168,11 @@ class SmsTools(QMainWindow):
                 if phone_number == num:
                     return contact_name
         return num
+
     def get_current_datetime(self):
         now = datetime.now()
         return now.strftime('%d/%m/%Y'), now.strftime('%H:%M:%S')
+
     # Функция для парсинга ответа AT+CMGL и извлечения SMS сообщений
     def parse_sms_response(self, response):
         messages = []
@@ -222,6 +238,7 @@ class SmsTools(QMainWindow):
                 })
             i += 1
         return messages
+
     def get_all_contacts(self):
         try:
             df = pd.read_excel(self.filePaths.contacts)
@@ -242,60 +259,60 @@ class SmsTools(QMainWindow):
             phone_number = str(row['Номер телефона']).replace(' ', '').replace('-', '')
             contacts[phone_number] = row['Имя маячка']
         return contacts
+
     def read_sms_and_save(self):
-            # print("Проверяем...")
-            response = self.send_at_command('AT+CMGL="ALL"')
+        # print("Проверяем...")
+        response = self.send_at_command('AT+CMGL="ALL"')
 
-            # Обработка ответа и запись в Excel
-            sms_messages = self.parse_sms_response(response)
-            combined_messages = self.combine_long_messages(sms_messages)
+        # Обработка ответа и запись в Excel
+        sms_messages = self.parse_sms_response(response)
+        combined_messages = self.combine_long_messages(sms_messages)
 
-            # Проверяем, существует ли файл с контактами
-            print(self.filePaths.contacts)
-            print(self.filePaths.smsLog)
-            if not os.path.exists(str(self.filePaths.contacts)):
-                self.conprint(f"Файл контактов не найден.")
-                return
-            #self.conprint("Файл контактов найден")
-            # Вывод содержимого SMS
-            if combined_messages:
-                # print()
-                # print("Найдены SMS сообщения:", end = '')
-                latest_name = "test4d!"
-                log = ""
-                for sms in combined_messages:
-                    # print('')
-                    name = self.num_to_name(sms['sender_number'])
-                    if name != latest_name:
-                        print(f">> {self.num_to_name(sms['sender_number'])}: \n{sms['message']}")
-                        self.conprint(f">> {self.num_to_name(sms['sender_number'])}: \n{sms['message']}")
-                    else:
-                        print(f"{sms['message']}")
-                        self.conprint(f"{sms['message']}")
-                    latest_name = name
-                self.append_to_excel(combined_messages)
-                # print("Добавлено, удаляем")
-                # Удаление
-                # по индексу
-                for sms in combined_messages:
-                    # print(f"удаляем {sms}")
-                    self.send_at_command(f"AT+CMGD={sms['index']}")
-                    self.incomingCount = 0
-                return log
-            else:
-                cy = 1
-                if cy == 15:
-                    cy = 1
+        # Проверяем, существует ли файл с контактами
+        print(self.filePaths.contacts)
+        print(self.filePaths.smsLog)
+        if not os.path.exists(str(self.filePaths.contacts)):
+            self.conprint(f"Файл контактов не найден.")
+            return
+        # self.conprint("Файл контактов найден")
+        # Вывод содержимого SMS
+        if combined_messages:
+            # print()
+            # print("Найдены SMS сообщения:", end = '')
+            latest_name = "test4d!"
+            log = ""
+            for sms in combined_messages:
+                # print('')
+                name = self.num_to_name(sms['sender_number'])
+                if name != latest_name:
+                    print(f">> {self.num_to_name(sms['sender_number'])}: \n{sms['message']}")
+                    self.conprint(f">> {self.num_to_name(sms['sender_number'])}: \n{sms['message']}")
+                else:
+                    print(f"{sms['message']}")
+                    self.conprint(f"{sms['message']}")
+                latest_name = name
+            self.append_to_excel(combined_messages)
+            # print("Добавлено, удаляем")
+            # Удаление
+            # по индексу
+            for sms in combined_messages:
+                # print(f"удаляем {sms}")
+                self.send_at_command(f"AT+CMGD={sms['index']}")
                 self.incomingCount = 0
-                self.ui.get_messages.setText("Получить сообщения")
-                return ""
+            return log
+        else:
+            cy = 1
+            if cy == 15:
+                cy = 1
+            self.incomingCount = 0
+            self.ui.get_messages.setText("Получить сообщения")
+            return ""
 
     def append_to_excel(self, sms_messages):
         if not sms_messages:  # Если нет новых сообщений, не записываем в таблицу
             return
         wb = self.files.smsLog
         ws = wb.active
-
 
         settings = self.settings
         sleep_time = int(settings.get('sleep_time', 0))  # Значение sleep_time из файла настроек
@@ -334,6 +351,7 @@ class SmsTools(QMainWindow):
 
         wb.save(self.filePaths.smsLog)
         self.files.smsLog = wb
+
     def restart_modem(self):
         if Continue("Перезагрузить модем? \nЗаймёт 50 секунд.", "Нет", "Да").get_choice():
             res = self.send_at_command('AT+CFUN=1,1')
@@ -342,6 +360,7 @@ class SmsTools(QMainWindow):
             self.setup_modem()
             Notification("Модем перезагружен").run()
             return True if "OK" in res else False
+
     def kill_connect_manager(self):
         try:
             # Ищем процесс Connect Manager
@@ -359,13 +378,15 @@ class SmsTools(QMainWindow):
         except Exception as e:
             print(f"Произошла ошибка: {e}")
             return False
+
     def menu_analysis(self):
         if Continue("Анализировать данные?", "Нет", "Да").get_choice():
             print("Анализирую...")
             self.analyze_smsLog()
             Notification("Анализ завершён.").run()
             print("Конец анализа.")
-    def openSettings(self): # Открывает настройки
+
+    def openSettings(self):  # Открывает настройки
         self.settingsWindow = settings.Settings()
         self.settingsWindow.show()
 
@@ -382,16 +403,17 @@ class SmsTools(QMainWindow):
                     ii += 1
                     rows_to_delete.append(row)
 
-            #удаляем
+            # удаляем
             for row_idx in rows_to_delete:
                 ws.delete_rows(row_idx, 1)
 
-            #Сохраняем
+            # Сохраняем
             wb.save("Files/contacts.xlsx")
             return True, f"{ii} Контактов успешно удалено"
 
         except Exception as e:
             return False, f"Ошибка при удалении контакта: {str(e)}"
+
     def check_sms_symbols(self, message):
         # Проверяет текст на наличие недопустимых символов для текстового режима
         allowed_chars = set(
@@ -404,36 +426,37 @@ class SmsTools(QMainWindow):
             if char not in allowed_chars:
                 return False
         return True
+
     def send(self):
-            modem = GsmModem(self.settings['port'], self.settings['speed'])
-            modem.connect("")
-            message = self.ui.message.toPlainText()
+        modem = GsmModem(self.settings['port'], self.settings['speed'])
+        modem.connect("")
+        message = self.ui.message.toPlainText()
 
-            if not message:
-                Notification("Введите сообщение!").run()
-                return
+        if not message:
+            Notification("Введите сообщение!").run()
+            return
 
-            recipient_numbers = self.get_selected_numbers()
-            if not recipient_numbers:
-                Notification("Выберите контакты!").run()
-                return
+        recipient_numbers = self.get_selected_numbers()
+        if not recipient_numbers:
+            Notification("Выберите контакты!").run()
+            return
 
-            use_text_mode = self.check_sms_symbols(message)  # use PDU mode
-            self.conprint(f"\nОтправка сообщений ({len(recipient_numbers)})...")
-            print("\nОтправка сообщений\n[", end="")
+        use_text_mode = self.check_sms_symbols(message)  # use PDU mode
+        self.conprint(f"\nОтправка сообщений ({len(recipient_numbers)})...")
+        print("\nОтправка сообщений\n[", end="")
 
-            modem.smsTextMode = use_text_mode
+        modem.smsTextMode = use_text_mode
 
-            # self.modem.connect("")
-            for recipient_number in recipient_numbers:
-                modem.sendSms(recipient_number, message)
-                print("#", end="")
-            print("]")
-            self.conprint("Сообщения отправлены.")
-            modem.close()
-            modem.connect("")
-            modem.smsTextMode = True
-            modem.close()
+        # self.modem.connect("")
+        for recipient_number in recipient_numbers:
+            modem.sendSms(recipient_number, message)
+            print("#", end="")
+        print("]")
+        self.conprint("Сообщения отправлены.")
+        modem.close()
+        modem.connect("")
+        modem.smsTextMode = True
+        modem.close()
 
     def read_settings(self):
         settings_file = "Files/settings.txt"
@@ -453,6 +476,7 @@ class SmsTools(QMainWindow):
                     print(f"Ошибка в строке {line_num}: '{line}', ошибка: {e}")
                     continue
         return settings
+
     def get_selected_numbers(self):
         selected_rows = set()
         for index in self.ui.contacts.selectedIndexes():
@@ -464,8 +488,9 @@ class SmsTools(QMainWindow):
             if item is not None:
                 first_column_data.append(item.text())
 
-        #self.conprint(f"Выделено {(first_column_data)}")  # Выводим в консоль (можно использовать иначе)
+        # self.conprint(f"Выделено {(first_column_data)}")  # Выводим в консоль (можно использовать иначе)
         return first_column_data
+
     def open_files_folder(self):
         # Открывает папку 'Files' в текущем каталоге в проводнике.
 
@@ -500,7 +525,7 @@ class SmsTools(QMainWindow):
             df = pd.read_excel(filename)
             df = df.drop_duplicates()
             df['Сообщение'] = df['Сообщение'].astype(str)
-            #print("Загруженные столбцы:", df.columns)
+            # print("Загруженные столбцы:", df.columns)
         except Exception as e:
             print(f"Ошибка при чтении файла SMS логов: {e}")
             return pd.DataFrame()
@@ -512,19 +537,18 @@ class SmsTools(QMainWindow):
         if smsLog.empty:
             print(f"Список сообщений пуст.")
             return
-        #Получение даты и времени
+        # Получение даты и времени
         today_date, current_time = self.get_current_datetime()
         yesterday_date = (datetime.now() - timedelta(days=1)).strftime('%d/%m/%Y')
 
-        #Используем индексаци
+        # Используем индексаци
         phone_column_index = 0  # Индекс столбца с номерами телефонов
         date_column_index = 3  # Индекс столбца с датой получения SMS
 
-        #Проверка типов
+        # Проверка типов
         smsLog.iloc[:, phone_column_index] = smsLog.iloc[:, phone_column_index].astype(str)
         smsLog.iloc[:, date_column_index] = pd.to_datetime(smsLog.iloc[:, date_column_index], format='%d/%m/%Y',
-                                                            errors='coerce').dt.strftime('%d/%m/%Y')
-
+                                                           errors='coerce').dt.strftime('%d/%m/%Y')
 
         # Анализ сообщений
         settings = self.settings
@@ -574,7 +598,6 @@ class SmsTools(QMainWindow):
 
         wb.save(self.filePaths.smsLog)
 
-
     def keyPressEvent(self, event):
         """Обрабатывает нажатие клавиши"""
         if self.ui.contacts.hasFocus():
@@ -589,8 +612,6 @@ class SmsTools(QMainWindow):
                     self.load_contacts()
             else:
                 print(event)
-
-
 
     def search_contacts(self, file_path, search_terms):
         wb = load_workbook(file_path)
@@ -624,7 +645,8 @@ class SmsTools(QMainWindow):
             return []
 
         return contacts_found
-    def load_contacts(self, search_terms = None):
+
+    def load_contacts(self, search_terms=None):
         file_path = "Files/contacts.xlsx"
         if not search_terms:
             search_terms = self.ui.arguments.text()
@@ -646,7 +668,7 @@ class SmsTools(QMainWindow):
             for contact in all_contacts:
                 if contact['num'] in edited_dict:
                     contact['name'] = edited_dict[contact['num']]
-            #print(edited_contacts)
+            # print(edited_contacts)
 
             self.rewrite_contacts(all_contacts)
             # self.load_contacts()
@@ -702,6 +724,38 @@ class SmsTools(QMainWindow):
         self.ui.console.setText(f"{self.ui.console.toPlainText()}\n{text}")
         self.ui.console.moveCursor(QTextCursor.MoveOperation.End)  # Перемещаем курсор в конец
         self.ui.console.ensureCursorVisible()  # Делаем курсор видимым
+
+    def update_frame(self):
+        if self.capture.isOpened():
+            ret, frame = self.capture.read()
+            if ret:
+                # Если достигнут конец видео, начинаем сначала
+                if self.capture.get(cv2.CAP_PROP_POS_FRAMES) == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
+                    self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+                # Конвертируем BGR в RGB
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = frame.shape
+                bytes_per_line = ch * w
+
+                # Создаем QImage из кадра
+                image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                self.snapshot = QPixmap.fromImage(image)
+                self.update()  # Вызываем перерисовку
+
+    def paintEvent(self, event):
+        if not self.snapshot.isNull():
+            painter = QPainter(self)
+            painter.drawPixmap(0, 0, self.snapshot.scaled(
+                self.size(),
+                Qt.KeepAspectRatioByExpanding,
+                Qt.SmoothTransformation
+            ))
+        super().paintEvent(event)
+
+    def closeEvent(self, event):
+        self.capture.release()
+        super().closeEvent(event)
 
 
 if __name__ == "__main__":
