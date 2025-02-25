@@ -17,7 +17,7 @@ class Notification(QDialog):
 
     def but2(self):
         self.close()
-    def get_choice(self):
+    def run(self):
         if self.exec() == QDialog.Accepted:
             return self.choice
         return None
@@ -25,5 +25,5 @@ class Notification(QDialog):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    Notification("Всё очень плохо!")  # Показываем окно и ждем выбор пользователя
+    Notification("Всё очень плохо!").run()  # Показываем окно и ждем выбор пользователя
     exit()

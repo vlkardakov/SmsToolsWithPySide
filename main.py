@@ -1,12 +1,13 @@
-import os, psutil, sys, subprocess, serial, time
+import os, psutil, sys, subprocess, serial, time, warnings
 import pandas as pd
 from Continue import Continue
+from PySide6.QtGui import QTextCursor
 from types import SimpleNamespace
 from PySide6.QtCore import Qt
 import serial.tools.list_ports as list_ports
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget
 from openpyxl import load_workbook, Workbook
-
+from gsmmodem.modem import GsmModem
 from openpyxl.styles import Alignment, PatternFill
 from datetime import datetime, timedelta
 import settings
@@ -26,28 +27,17 @@ class SmsTools(QMainWindow):
         self.settings = self.read_settings()
         self.settings['port'] = None # Настроить
         self.canModem = False
-
-        # Настройка файлов
-        self.files = self.filePaths = SimpleNamespace()
-        self.filePaths.smsLog = "Files/sms_log.xlsx"
-        self.filePaths.contact = "Files/contacts.xlsx"
-        self.files.smsLog = load_workbook(self.filePaths.smsLog, data_only=True) # Загружаем
-        self.files.contacts = load_workbook(self.filePaths.contacts, data_only=True) # Загружаем
-        self.contacts = self.load_contacts(self.filePaths.contact) # Загружаем
-
-        # Инициализация модема
-        self.kill_connect_manager() # Отключение коннект-менеджера
-        self.find_modem() # Попытка найти модем
-        if self.canModem: # Если модем найден, подключение
-            self.modemSession = serial.Serial(self.settings['port'], self.settings['speed'], timeout=1) # настройка сессии
-
-            self.send_at_command('AT+CMGF=1') # Задание текстового формата
-            self.send_at_command('AT+CPMS="ME","ME","ME"') # переключение на внутреннюю память
+        self.incomingCount = 0
 
 
+        self.files = SimpleNamespace()
+        self.filePaths = SimpleNamespace()
+        self.contacts = None
+        self.modem = None
 
         # Привязка кнопок
-        self.ui.sendButton.clicked.connect(self.get_selected_numbers)
+        self.ui.sendButton.clicked.connect(self.send)
+        self.ui.restart.clicked.connect(self.restart_modem)
         self.ui.get_messages.clicked.connect(self.read_sms_and_save)
         self.ui.add_contact.clicked.connect(self.add_contacts)
         self.ui.analyze.clicked.connect(self.menu_analysis)
@@ -62,7 +52,7 @@ class SmsTools(QMainWindow):
         name = self.ui.name.toPlainText()
 
         contact = [name, number]
-        file_path = self.filePaths.contact
+        file_path = self.filePaths.contacts
         # создаем каталог, если он не существует
         directory = os.path.dirname(file_path)
         if not os.path.exists(directory):
@@ -87,19 +77,49 @@ class SmsTools(QMainWindow):
         self.load_contacts()
         print(f"Контакты успешно добавлены в {file_path}")
         return None
+
+    def incomeCountHandler(self):
+        self.incomingCount += 1
+        self.ui.get_messages.setText(f"Получить сообщения ({self.incomingCount})")
+
+    def setup_modem(self):
+        # Настройка файлов
+
+        self.filePaths.smsLog = "Files/sms_log.xlsx"
+        self.filePaths.contacts = "Files/contacts.xlsx"
+        self.files.smsLog = load_workbook(self.filePaths.smsLog, data_only=True) # Загружаем
+        self.files.contacts = load_workbook(self.filePaths.contacts, data_only=True) # Загружаем
+        self.contacts = self.get_all_contacts() # Загружаем
+
+        # Инициализация модема
+        self.kill_connect_manager() # Отключение коннект-менеджера
+        self.find_modem() # Попытка найти модем
+        if self.canModem: # Если модем найден, подключение. ОБязательные вещи.
+            print(self.send_at_command('AT+CMGF=1')) # Задание текстового формата
+            self.send_at_command('AT+CPMS="ME","ME","ME"') # переключение на внутреннюю память
+            #self.conprint(self.modem.read())
+
     # Функция для объединения длинных сообщений
     def combine_long_messages(self, messages):
         combined_messages = []
         for message in messages:
             combined_messages.append(message)
         return combined_messages
+    def send_at_command(self,command, timeout=0.1):
+        with serial.Serial(self.settings['port'], self.settings['speed'], timeout=timeout) as ser:
+            ser.write((command + '\r\n').encode())
+            time.sleep(timeout)
+            response = ser.read_all().decode()
+            return response
     def find_modem(self):
         # Находим все доступные COM порты
         available_ports = list_ports.comports()
 
         if not available_ports:
+            print("Не удалось найти модем.")
             self.conprint("Не удалось найти модем.")
-            self.print('Функции отправки и принятия СМС не будут работать.')
+            print('Функции отправки и принятия СМС не будут работать.')
+            self.conprint('Функции отправки и принятия СМС не будут работать.')
         else:
             # Проходим по каждому доступному порту
             for port_info in available_ports:
@@ -147,7 +167,7 @@ class SmsTools(QMainWindow):
         +CMGL: 10,"REC READ","+79875324724",,"24/11/15,14:35:51+12"
         Hello!
         Или:
-
+        +CMGL: 0,"REC UNREAD","+79302590039",,"25/02/25,16:41:11+12"
         '''
         while i < len(lines):
             if "+CMGL: " in lines[i]:
@@ -204,7 +224,7 @@ class SmsTools(QMainWindow):
         return messages
     def get_all_contacts(self):
         try:
-            df = pd.read_excel(self.filePaths.contact)
+            df = pd.read_excel(self.filePaths.contacts)
         except Exception as e:
             print(f"Ошибка при чтении файла контактов: {e}")
             return {}
@@ -231,11 +251,12 @@ class SmsTools(QMainWindow):
             combined_messages = self.combine_long_messages(sms_messages)
 
             # Проверяем, существует ли файл с контактами
-            print(self.filePaths.contact)
-            if not os.path.exists(str(self.filePaths.contact)):
+            print(self.filePaths.contacts)
+            print(self.filePaths.smsLog)
+            if not os.path.exists(str(self.filePaths.contacts)):
                 self.conprint(f"Файл контактов не найден.")
                 return
-
+            #self.conprint("Файл контактов найден")
             # Вывод содержимого SMS
             if combined_messages:
                 # print()
@@ -247,8 +268,10 @@ class SmsTools(QMainWindow):
                     name = self.num_to_name(sms['sender_number'])
                     if name != latest_name:
                         print(f">> {self.num_to_name(sms['sender_number'])}: \n{sms['message']}")
+                        self.conprint(f">> {self.num_to_name(sms['sender_number'])}: \n{sms['message']}")
                     else:
                         print(f"{sms['message']}")
+                        self.conprint(f"{sms['message']}")
                     latest_name = name
                 self.append_to_excel(combined_messages)
                 # print("Добавлено, удаляем")
@@ -257,12 +280,16 @@ class SmsTools(QMainWindow):
                 for sms in combined_messages:
                     # print(f"удаляем {sms}")
                     self.send_at_command(f"AT+CMGD={sms['index']}")
+                    self.incomingCount = 0
                 return log
             else:
                 cy = 1
                 if cy == 15:
                     cy = 1
+                self.incomingCount = 0
+                self.ui.get_messages.setText("Получить сообщения")
                 return ""
+
     def append_to_excel(self, sms_messages):
         if not sms_messages:  # Если нет новых сообщений, не записываем в таблицу
             return
@@ -308,8 +335,13 @@ class SmsTools(QMainWindow):
         wb.save(self.filePaths.smsLog)
         self.files.smsLog = wb
     def restart_modem(self):
-        res = self.send_at_command('AT+CFUN=1,1')
-        return True if "OK" in res else False
+        if Continue("Перезагрузить модем? \nЗаймёт 50 секунд.", "Нет", "Да").get_choice():
+            res = self.send_at_command('AT+CFUN=1,1')
+
+            time.sleep(50)
+            self.setup_modem()
+            Notification("Модем перезагружен").run()
+            return True if "OK" in res else False
     def kill_connect_manager(self):
         try:
             # Ищем процесс Connect Manager
@@ -329,18 +361,13 @@ class SmsTools(QMainWindow):
             return False
     def menu_analysis(self):
         if Continue("Анализировать данные?", "Нет", "Да").get_choice():
-            self.analyze_sms_log()
-            Notification("Анализ завершён.")
+            print("Анализирую...")
+            self.analyze_smsLog()
+            Notification("Анализ завершён.").run()
+            print("Конец анализа.")
     def openSettings(self): # Открывает настройки
         self.settingsWindow = settings.Settings()
         self.settingsWindow.show()
-    def send_at_command(self,command, response_timeout=1): # Отправляет команду на порт через уже активное подключение
-        self.modemSession.write((command + '\r\n').encode())
-        time.sleep(response_timeout)
-        response = self.modemSession.read_all().decode()
-        return response
-
-
 
     def delete_contact(self, nums):
         ii = 0
@@ -365,6 +392,49 @@ class SmsTools(QMainWindow):
 
         except Exception as e:
             return False, f"Ошибка при удалении контакта: {str(e)}"
+    def check_sms_symbols(self, message):
+        # Проверяет текст на наличие недопустимых символов для текстового режима
+        allowed_chars = set(
+            'abcdefghijklmnopqrstuvwxyz'
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            '0123456789'
+            ' .,!?()-+=:;@')
+
+        for char in message:
+            if char not in allowed_chars:
+                return False
+        return True
+    def send(self):
+            modem = GsmModem(self.settings['port'], self.settings['speed'])
+            modem.connect("")
+            message = self.ui.message.toPlainText()
+
+            if not message:
+                Notification("Введите сообщение!").run()
+                return
+
+            recipient_numbers = self.get_selected_numbers()
+            if not recipient_numbers:
+                Notification("Выберите контакты!").run()
+                return
+
+            use_text_mode = self.check_sms_symbols(message)  # use PDU mode
+            self.conprint(f"\nОтправка сообщений ({len(recipient_numbers)})...")
+            print("\nОтправка сообщений\n[", end="")
+
+            modem.smsTextMode = use_text_mode
+
+            # self.modem.connect("")
+            for recipient_number in recipient_numbers:
+                modem.sendSms(recipient_number, message)
+                print("#", end="")
+            print("]")
+            self.conprint("Сообщения отправлены.")
+            modem.close()
+            modem.connect("")
+            modem.smsTextMode = True
+            modem.close()
+
     def read_settings(self):
         settings_file = "Files/settings.txt"
         if not os.path.exists(settings_file):
@@ -425,7 +495,7 @@ class SmsTools(QMainWindow):
         except Exception as e:
             print('', end='')
 
-    def load_sms_log(self, filename):
+    def load_smsLog(self, filename):
         try:
             df = pd.read_excel(filename)
             df = df.drop_duplicates()
@@ -436,10 +506,10 @@ class SmsTools(QMainWindow):
             return pd.DataFrame()
         return df
 
-    def analyze_sms_log(self):
-        sms_log = self.load_sms_log(self.filePaths.smsLog)
+    def analyze_smsLog(self):
+        smsLog = self.load_smsLog(self.filePaths.smsLog)
 
-        if sms_log.empty:
+        if smsLog.empty:
             print(f"Список сообщений пуст.")
             return
         #Получение даты и времени
@@ -451,8 +521,8 @@ class SmsTools(QMainWindow):
         date_column_index = 3  # Индекс столбца с датой получения SMS
 
         #Проверка типов
-        sms_log.iloc[:, phone_column_index] = sms_log.iloc[:, phone_column_index].astype(str)
-        sms_log.iloc[:, date_column_index] = pd.to_datetime(sms_log.iloc[:, date_column_index], format='%d/%m/%Y',
+        smsLog.iloc[:, phone_column_index] = smsLog.iloc[:, phone_column_index].astype(str)
+        smsLog.iloc[:, date_column_index] = pd.to_datetime(smsLog.iloc[:, date_column_index], format='%d/%m/%Y',
                                                             errors='coerce').dt.strftime('%d/%m/%Y')
 
 
@@ -610,7 +680,7 @@ class SmsTools(QMainWindow):
         self.ui.contacts.setHorizontalHeaderLabels(["Номер", "Имя"])
 
         self.ui.contacts.setColumnWidth(0, 90)  # Номер телефона
-        self.ui.contacts.setColumnWidth(1, 81)  # Имя
+        self.ui.contacts.setColumnWidth(1, 99)  # Имя
         self.ui.contacts.verticalHeader().setDefaultSectionSize(30)  # Высота строк
 
         self.ui.contacts.setSelectionBehavior(QTableWidget.SelectRows)
@@ -630,14 +700,18 @@ class SmsTools(QMainWindow):
 
     def conprint(self, text):
         self.ui.console.setText(f"{self.ui.console.toPlainText()}\n{text}")
+        self.ui.console.moveCursor(QTextCursor.MoveOperation.End)  # Перемещаем курсор в конец
+        self.ui.console.ensureCursorVisible()  # Делаем курсор видимым
 
 
 if __name__ == "__main__":
     # print(edit_contacts())
+    warnings.simplefilter(action='ignore', category=FutureWarning)
     app = QApplication(sys.argv)
 
     window = SmsTools()
     window.show()
-    window.load_contacts(search_terms="1")
+    window.load_contacts(search_terms="0 1 2 3 4 5 6 7 8 9")
+    window.setup_modem()
 
     sys.exit(app.exec())
