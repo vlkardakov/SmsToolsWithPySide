@@ -61,7 +61,7 @@ class Settings(QMainWindow):
         self.ui.chooseTheme.setCurrentText(self.settings['theme'])
 
         # Инициализация видео
-        self.capture = cv2.VideoCapture('violet.mp4')
+        self.capture = cv2.VideoCapture(f'{self.settings["theme"]}.mp4')
         self.snapshot = QPixmap()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
