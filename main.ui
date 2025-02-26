@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>500</height>
+    <height>525</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>600</width>
-    <height>500</height>
+    <height>525</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>600</width>
-    <height>500</height>
+    <height>525</height>
    </size>
   </property>
   <property name="cursor">
@@ -30,6 +30,9 @@
   </property>
   <property name="windowTitle">
    <string>Центр управления сообщениями</string>
+  </property>
+  <property name="layoutDirection">
+   <enum>Qt::LeftToRight</enum>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.934, y1:1, x2:0.127, y2:0.244, stop:0 rgba(10, 13, 18, 255), stop:1 rgba(54, 63, 80, 255));
@@ -47,7 +50,7 @@ font-family: Grammatica;
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
+      <y>40</y>
       <width>581</width>
       <height>411</height>
      </rect>
@@ -474,7 +477,7 @@ background-color: rgba(255,255,255,80);
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>430</y>
+      <y>460</y>
       <width>581</width>
       <height>61</height>
      </rect>
@@ -526,6 +529,110 @@ background-color: rgba(255,255,255,80);
       <widget class="QTextEdit" name="message"/>
      </item>
     </layout>
+   </widget>
+   <widget class="QFrame" name="gridFrame">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>581</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255,255,255,20);
+border: 1px solid rgba(255,255,255,40);
+border-radius: 7;
+color: white;
+QPushButton {
+background-color: rgba(255,255,255,30);
+}
+
+QPushButton:hover {
+background-color: rgba(255,255,255,50);
+}
+
+QPushButton:pressed {
+background-color: rgba(255,255,255,80);
+}</string>
+    </property>
+    <widget class="QPushButton" name="closeButton">
+     <property name="geometry">
+      <rect>
+       <x>550</x>
+       <y>0</y>
+       <width>30</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+background-color: rgba(255,255,255,20);
+}
+
+QPushButton:hover {
+background-color: rgba(255,10,10,80);
+}
+
+QPushButton:pressed {
+background-color: rgba(255,255,255,80);
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>icons/close.svg</normaloff>icons/close.svg</iconset>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="minimizeButton">
+     <property name="geometry">
+      <rect>
+       <x>510</x>
+       <y>0</y>
+       <width>30</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton {
+background-color: rgba(255,255,255,20);
+}
+
+QPushButton:hover {
+background-color: rgba(30,30,255,80);
+}
+
+QPushButton:pressed {
+background-color: rgba(255,255,255,80);
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>icons/minimize.svg</normaloff>icons/minimize.svg</iconset>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labeltitle">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>231</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border: None;
+background-color: rgba(255,255,255,0);</string>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Центр управления сообщениями&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>

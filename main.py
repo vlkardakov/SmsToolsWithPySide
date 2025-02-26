@@ -14,7 +14,7 @@ import settings
 from ui_main import Ui_MainWindow
 from Notification import Notification
 import cv2
-from PySide6.QtGui import QImage, QPixmap, QPainter
+from PySide6.QtGui import QImage, QPixmap, QPainter, QPainterPath
 
 
 class SmsTools(QMainWindow):
@@ -23,19 +23,22 @@ class SmsTools(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        #инициализация видева
+        # инициализация видева
         self.capture = cv2.VideoCapture('violet.mp4')
         self.snapshot = QPixmap()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
         self.start_time = QTime.currentTime()
 
-        #запуск
+        # запуск
         self.timer.start(30)  # 30ms = ~33fps
 
-        # пусть фон будет прозрачным чтобы видет видева
-        self.setAttribute(Qt.WA_TranslucentBackground)
-        self.ui.centralwidget.setStyleSheet("background: transparent;")
+        self.setWindowFlags(Qt.FramelessWindowHint)  # titlebar
+        self.setAttribute(Qt.WA_TranslucentBackground)  # пусть фон будет прозрачным чтобы видет видева
+        self.ui.centralwidget.setStyleSheet("""
+            background: transparent;
+            border-radius: 20px;
+        """)
 
         # Чтение настроек
         self.settings = self.read_settings()
@@ -48,7 +51,11 @@ class SmsTools(QMainWindow):
         self.contacts = None
         self.modem = None
 
-        #биндинг кнопок
+        # биндинг кнопок
+
+        self.ui.closeButton.clicked.connect(self.close)
+        self.ui.minimizeButton.clicked.connect(self.showMinimized)
+
         self.ui.sendButton.clicked.connect(self.send)
         self.ui.restart.clicked.connect(self.restart_modem)
         self.ui.get_messages.clicked.connect(self.read_sms_and_save)
@@ -58,6 +65,16 @@ class SmsTools(QMainWindow):
         self.ui.save.clicked.connect(self.edit_contacts)
         self.ui.search.clicked.connect(self.load_contacts)
         self.ui.settings.clicked.connect(self.openSettings)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.dragPos = event.globalPosition().toPoint()
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() == Qt.LeftButton:
+            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = event.globalPosition().toPoint()
+            event.accept()
 
     def add_contacts(self):
         print("Начинаю добавление...")
@@ -109,7 +126,7 @@ class SmsTools(QMainWindow):
             self.send_at_command('AT+CPMS="ME","ME","ME"')  # переключение на внутреннюю память
             # self.conprint(self.modem.read())
 
-    #функция для объединения сообщений
+    # функция для объединения сообщений
     def combine_long_messages(self, messages):
         combined_messages = []
         for message in messages:
@@ -133,7 +150,7 @@ class SmsTools(QMainWindow):
             print('Функции отправки и принятия СМС не будут работать.')
             self.conprint('Функции отправки и принятия СМС не будут работать.')
         else:
-            #проходим по каждому доступному порту
+            # проходим по каждому доступному порту
             for port_info in available_ports:
                 port = port_info.device
                 device_name = port_info.description  # Получаем имя устройства
@@ -145,7 +162,7 @@ class SmsTools(QMainWindow):
                         ser.close()
 
                         if response:
-                            #сохраняем первый найденный порт и завершаем выполнение
+                            # сохраняем первый найденный порт и завершаем выполнение
                             self.settings['port'] = port
                             self.canModem = True
                             break
@@ -244,7 +261,7 @@ class SmsTools(QMainWindow):
         contacts = {}
         for index, row in df.iterrows():
             # print(row['Номер телефона'])
-            #приведение номеров телефонов к строковому формату без лишних символов
+            # приведение номеров телефонов к строковому формату без лишних символов
             phone_number = str(row['Номер телефона']).replace(' ', '').replace('-', '')
             contacts[phone_number] = row['Имя маячка']
         return contacts
@@ -588,7 +605,7 @@ class SmsTools(QMainWindow):
         wb.save(self.filePaths.smsLog)
 
     def keyPressEvent(self, event):
-        #чтобы нажать esq и например отменить выделение или нажать enter и отправить сообщение (потом)
+        # чтобы нажать esq и например отменить выделение или нажать enter и отправить сообщение (потом)
         if self.ui.contacts.hasFocus():
             if event.key() == Qt.Key_Escape:
                 print("Очистка.")
@@ -700,11 +717,10 @@ class SmsTools(QMainWindow):
         self.ui.contacts.verticalHeader().hide()
 
         for row, contact in enumerate(contacts):
-            #заполнение
+            # заполнение
             phone_item = QTableWidgetItem(contact["num"])
             phone_item.setFlags(phone_item.flags() & ~Qt.ItemIsEditable)  # Убираем флаг редактирования
             self.ui.contacts.setItem(row, 0, phone_item)
-
 
             name_item = QTableWidgetItem(contact["name"])
             self.ui.contacts.setItem(row, 1, name_item)
@@ -712,22 +728,22 @@ class SmsTools(QMainWindow):
     def conprint(self, text):
         self.ui.console.setText(f"{self.ui.console.toPlainText()}\n{text}")
         self.ui.console.moveCursor(QTextCursor.MoveOperation.End)
-        self.ui.console.ensureCursorVisible()  #прокрутка
+        self.ui.console.ensureCursorVisible()  # прокрутка
 
     def update_frame(self):
         if self.capture.isOpened():
             ret, frame = self.capture.read()
             if ret:
-                #повтор
+                # повтор
                 if self.capture.get(cv2.CAP_PROP_POS_FRAMES) == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
                     self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                #BGR в RGB
+                # BGR в RGB
 
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 h, w, ch = frame.shape
                 bytes_per_line = ch * w
 
-                #QImage изкадра
+                # QImage这个英雄
                 image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
                 self.snapshot = QPixmap.fromImage(image)
                 self.update()
@@ -735,6 +751,16 @@ class SmsTools(QMainWindow):
     def paintEvent(self, event):
         if not self.snapshot.isNull():
             painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing)  # Включаем сглаживание
+
+            # Создаем путь с закругленными углами
+            path = QPainterPath()
+            path.addRoundedRect(0, 0, self.width(), self.height(), 20, 20)
+
+            # Устанавливаем маску отсечения
+            painter.setClipPath(path)
+
+            # Рисуем видео
             painter.drawPixmap(0, 0, self.snapshot.scaled(
                 self.size(),
                 Qt.KeepAspectRatioByExpanding,
