@@ -1,10 +1,13 @@
 import sys, os, subprocess, shutil
 from datetime import datetime
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget, QTextBrowser, QTextEdit, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtCore import Qt, QTimer, QTime
+from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget, QTextBrowser, QTextEdit, \
+    QPushButton, QVBoxLayout, QWidget
 from Scripts.bottle import delete
 from openpyxl import load_workbook, Workbook
 from ui_settings import Ui_settingswindow
+import cv2
+from PySide6.QtGui import QImage, QPixmap, QPainter
 
 
 def read_settings():
@@ -26,20 +29,66 @@ def read_settings():
                 continue
     return settings
 
+
 class Settings(QMainWindow):
     def __init__(self):
         super(Settings, self).__init__()
         self.ui = Ui_settingswindow()
         self.ui.setupUi(self)
-        #self.ui.sendButton.clicked.connect(self.get_selected_numbers)
+
+        # Инициализация видео
+        self.capture = cv2.VideoCapture('violet.mp4')
+        self.snapshot = QPixmap()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        self.start_time = QTime.currentTime()
+
+        # Запускаем воспроизведение
+        self.timer.start(30)  # 30ms = ~33fps
+
+        # Делаем фон прозрачным
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        #self.ui..setStyleSheet("background: transparent;")
+
+        # Привязка кнопок
         self.ui.archivateData.clicked.connect(self.archivate_logs)
-
-
-        # self.ui.saveSettings.clicked.connect(self.saveSettings)
         self.ui.cancelSettings.clicked.connect(self.cancelSettings)
+
+    def update_frame(self):
+        if self.capture.isOpened():
+            ret, frame = self.capture.read()
+            if ret:
+                # Если достигнут конец видео, начинаем сначала
+                if self.capture.get(cv2.CAP_PROP_POS_FRAMES) == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
+                    self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+                # Конвертируем BGR в RGB
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = frame.shape
+                bytes_per_line = ch * w
+
+                # Создаем QImage из кадра
+                image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                self.snapshot = QPixmap.fromImage(image)
+                self.update()  # Вызываем перерисовку
+
+    def paintEvent(self, event):
+        if not self.snapshot.isNull():
+            painter = QPainter(self)
+            painter.drawPixmap(0, 0, self.snapshot.scaled(
+                self.size(),
+                Qt.KeepAspectRatioByExpanding,
+                Qt.SmoothTransformation
+            ))
+        super().paintEvent(event)
+
+    def closeEvent(self, event):
+        self.capture.release()
+        super().closeEvent(event)
 
     def keyPressEvent(self, event):
         pass
+
     def archivate_logs(self):
         log_file = "Files/sms_log.xlsx"
         analysis_file = "Files/Analysis.txt"
@@ -86,3 +135,10 @@ class Settings(QMainWindow):
 
     def cancelSettings(self):
         self.close()
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = Settings()
+    window.show()
+    sys.exit(app.exec())

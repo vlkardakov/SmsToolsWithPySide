@@ -23,17 +23,17 @@ class SmsTools(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        # Инициализация видео
+        #инициализация видева
         self.capture = cv2.VideoCapture('violet.mp4')
         self.snapshot = QPixmap()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
         self.start_time = QTime.currentTime()
 
-        # Запускаем воспроизведение
+        #запуск
         self.timer.start(30)  # 30ms = ~33fps
 
-        # Делаем фон прозрачным
+        # пусть фон будет прозрачным чтобы видет видева
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.ui.centralwidget.setStyleSheet("background: transparent;")
 
@@ -48,7 +48,7 @@ class SmsTools(QMainWindow):
         self.contacts = None
         self.modem = None
 
-        # Привязка кнопок
+        #биндинг кнопок
         self.ui.sendButton.clicked.connect(self.send)
         self.ui.restart.clicked.connect(self.restart_modem)
         self.ui.get_messages.clicked.connect(self.read_sms_and_save)
@@ -66,21 +66,19 @@ class SmsTools(QMainWindow):
 
         contact = [name, number]
         file_path = self.filePaths.contacts
-        # создаем каталог, если он не существует
         directory = os.path.dirname(file_path)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
         if os.path.exists(file_path):
-            # загружаем существующий файл
             wb = load_workbook(file_path)
             ws = wb.active
         else:
-            # создаем новый файл и заполняем заголовки
             wb = Workbook()
             ws = wb.active
             ws.title = "Contacts"
-            ws.append(["Phone Number", "Contact Name"])
+            # заголовки
+            ws.append(["Номер телефона", "Имя маячка"])
 
         ws.append(contact)
 
@@ -111,7 +109,7 @@ class SmsTools(QMainWindow):
             self.send_at_command('AT+CPMS="ME","ME","ME"')  # переключение на внутреннюю память
             # self.conprint(self.modem.read())
 
-    # Функция для объединения длинных сообщений
+    #функция для объединения сообщений
     def combine_long_messages(self, messages):
         combined_messages = []
         for message in messages:
@@ -126,7 +124,7 @@ class SmsTools(QMainWindow):
             return response
 
     def find_modem(self):
-        # Находим все доступные COM порты
+        # Находим все доступные порты
         available_ports = list_ports.comports()
 
         if not available_ports:
@@ -135,7 +133,7 @@ class SmsTools(QMainWindow):
             print('Функции отправки и принятия СМС не будут работать.')
             self.conprint('Функции отправки и принятия СМС не будут работать.')
         else:
-            # Проходим по каждому доступному порту
+            #проходим по каждому доступному порту
             for port_info in available_ports:
                 port = port_info.device
                 device_name = port_info.description  # Получаем имя устройства
@@ -147,7 +145,7 @@ class SmsTools(QMainWindow):
                         ser.close()
 
                         if response:
-                            # Сохраняем первый найденный порт и завершаем выполнение
+                            #сохраняем первый найденный порт и завершаем выполнение
                             self.settings['port'] = port
                             self.canModem = True
                             break
@@ -173,7 +171,7 @@ class SmsTools(QMainWindow):
         now = datetime.now()
         return now.strftime('%d/%m/%Y'), now.strftime('%H:%M:%S')
 
-    # Функция для парсинга ответа AT+CMGL и извлечения SMS сообщений
+    # Функция для парсинга и извлечения ообщений
     def parse_sms_response(self, response):
         messages = []
         lines = response.splitlines()
@@ -200,34 +198,25 @@ class SmsTools(QMainWindow):
                 # print(f"ВРЕМЯ = {date_time}")
 
                 message_lines = []
-
-                # Проверяем, есть ли следующая строка
                 if i + 1 < len(lines):
-                    # Если следующая строка не начинается с "+CMGL: ", то добавляем ее к сообщению
                     j = i + 1
                     while j < len(lines) and "+CMGL: " not in lines[j]:
                         if "OK" in lines[j]:
                             break
                         message_lines.append(lines[j].strip())
                         j += 1
-                    i = j - 1  # Установим индекс на последнюю строку сообщения
+                    i = j - 1
 
-                # Декодируем строки сообщения
                 decoded_lines = []
                 for line in message_lines:
                     try:
-                        # Преобразуем сообщение в формат UCS2
                         decoded_line = bytes.fromhex(line).decode('utf-16be')
                         decoded_lines.append(decoded_line)
                     except (ValueError, UnicodeDecodeError):
-                        # Если декодирование не удалось, оставляем все строки сообщения в первоначальном виде
                         decoded_lines = message_lines
                         break
 
                 message = '\n'.join(decoded_lines)
-
-                # Преобразуем дату в формат DD/MM/YYYY
-                # formatted_date = format_date(date.strip())
 
                 messages.append({
                     "index": index,
@@ -255,7 +244,7 @@ class SmsTools(QMainWindow):
         contacts = {}
         for index, row in df.iterrows():
             # print(row['Номер телефона'])
-            # Приведение номеров телефонов к строковому формату без лишних символов
+            #приведение номеров телефонов к строковому формату без лишних символов
             phone_number = str(row['Номер телефона']).replace(' ', '').replace('-', '')
             contacts[phone_number] = row['Имя маячка']
         return contacts
@@ -264,7 +253,7 @@ class SmsTools(QMainWindow):
         # print("Проверяем...")
         response = self.send_at_command('AT+CMGL="ALL"')
 
-        # Обработка ответа и запись в Excel
+        # Обработка ответа и запись в таблицу
         sms_messages = self.parse_sms_response(response)
         combined_messages = self.combine_long_messages(sms_messages)
 
@@ -599,7 +588,7 @@ class SmsTools(QMainWindow):
         wb.save(self.filePaths.smsLog)
 
     def keyPressEvent(self, event):
-        """Обрабатывает нажатие клавиши"""
+        #чтобы нажать esq и например отменить выделение или нажать enter и отправить сообщение (потом)
         if self.ui.contacts.hasFocus():
             if event.key() == Qt.Key_Escape:
                 print("Очистка.")
@@ -711,37 +700,37 @@ class SmsTools(QMainWindow):
         self.ui.contacts.verticalHeader().hide()
 
         for row, contact in enumerate(contacts):
-            # Устанавливаем номер телефона (запрещаем редактирование)
+            #заполнение
             phone_item = QTableWidgetItem(contact["num"])
             phone_item.setFlags(phone_item.flags() & ~Qt.ItemIsEditable)  # Убираем флаг редактирования
             self.ui.contacts.setItem(row, 0, phone_item)
 
-            # Устанавливаем имя (разрешаем редактирование)
+
             name_item = QTableWidgetItem(contact["name"])
             self.ui.contacts.setItem(row, 1, name_item)
 
     def conprint(self, text):
         self.ui.console.setText(f"{self.ui.console.toPlainText()}\n{text}")
-        self.ui.console.moveCursor(QTextCursor.MoveOperation.End)  # Перемещаем курсор в конец
-        self.ui.console.ensureCursorVisible()  # Делаем курсор видимым
+        self.ui.console.moveCursor(QTextCursor.MoveOperation.End)
+        self.ui.console.ensureCursorVisible()  #прокрутка
 
     def update_frame(self):
         if self.capture.isOpened():
             ret, frame = self.capture.read()
             if ret:
-                # Если достигнут конец видео, начинаем сначала
+                #повтор
                 if self.capture.get(cv2.CAP_PROP_POS_FRAMES) == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
                     self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                #BGR в RGB
 
-                # Конвертируем BGR в RGB
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 h, w, ch = frame.shape
                 bytes_per_line = ch * w
 
-                # Создаем QImage из кадра
+                #QImage изкадра
                 image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
                 self.snapshot = QPixmap.fromImage(image)
-                self.update()  # Вызываем перерисовку
+                self.update()
 
     def paintEvent(self, event):
         if not self.snapshot.isNull():

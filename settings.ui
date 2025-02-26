@@ -180,26 +180,23 @@ border: None;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">QSlider::groove:horizontal {
-    background: #e0e0e0;
-    border-radius: 10px;
     height: 6px;
+    background: #d7d7d7;
+    border-radius: 3px;
 }
 
 QSlider::handle:horizontal {
     background: #ffffff;
-    border: 2px solid #d1d9e6;
-    width: 18px;
-    height: 18px;
-    margin: -7px 0;
-    border-radius: 9px;
-    box-shadow: 3px 3px 6px #b8b8b8, -3px -3px 6px #ffffff;
+    width: 16px;
+    height: 16px;
+    margin: -5px 0;
+    border-radius: 8px;
 }
 
 QSlider::sub-page:horizontal {
-    background: #3498db;
-    border-radius: 10px;
-}
-</string>
+    background: #ffffff;
+    border-radius: 3px;
+}</string>
     </property>
     <property name="maximum">
      <number>100</number>
@@ -248,7 +245,7 @@ border: None;</string>
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>../../../.designer/backup/icons/archive.svg</normaloff>../../../.designer/backup/icons/archive.svg</iconset>
+      <normaloff>../../../../.designer/backup/icons/archive.svg</normaloff>../../../../.designer/backup/icons/archive.svg</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="saveSettings">
@@ -270,7 +267,7 @@ border: None;</string>
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>../../../.designer/backup/icons/yes.svg</normaloff>../../../.designer/backup/icons/yes.svg</iconset>
+      <normaloff>../../../../.designer/backup/icons/yes.svg</normaloff>../../../../.designer/backup/icons/yes.svg</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="cancelSettings">
@@ -290,7 +287,7 @@ border: None;</string>
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>../../../.designer/backup/icons/no.svg</normaloff>../../../.designer/backup/icons/no.svg</iconset>
+      <normaloff>../../../../.designer/backup/icons/no.svg</normaloff>../../../../.designer/backup/icons/no.svg</iconset>
     </property>
    </widget>
    <zorder>modemNameDisplay</zorder>

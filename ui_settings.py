@@ -25,7 +25,62 @@ class Ui_settingswindow(object):
         settingswindow.resize(320, 270)
         settingswindow.setMinimumSize(QSize(320, 270))
         settingswindow.setMaximumSize(QSize(320, 270))
-        settingswindow.setStyleSheet(u"background-color: qlineargradient(spread:reflect, x1:0.934, y1:1, x2:0.127, y2:0.244, stop:0 rgba(10, 13, 18, 255), stop:1 rgba(54, 63, 80, 255));")
+        settingswindow.setStyleSheet(u"background-color: qlineargradient(spread:reflect, x1:0.934, y1:1, x2:0.127, y2:0.244, stop:0 rgba(10, 13, 18, 255), stop:1 rgba(54, 63, 80, 255));\n"
+"QMainWindow {\n"
+"  background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,\n"
+"    stop:0 #22d, stop:0.5 #c8f8ff, stop:1 #6d2);\n"
+"}\n"
+"\n"
+"QWidget#wrapper {\n"
+"  background: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1,\n"
+"    stop:0 #22d, stop:0.5 #c8f8ff, stop:1 #6d2);\n"
+"  border-radius: 16px;\n"
+"  padding: 16px;\n"
+"  color: white;\n"
+"}\n"
+"\n"
+"QLabel#title {\n"
+"  margin-bottom: 24px;\n"
+"  font-size: 24px;\n"
+"  font-weight: bold;\n"
+"  color: white;\n"
+"}\n"
+"\n"
+"QLabel#subtitle {\n"
+"  margin-bottom: 12px;\n"
+"  text-align: center;\n"
+"  font-size: 18px;\n"
+"  font-weight: bold;\n"
+"  color: white;\n"
+"}\n"
+"\n"
+"QSlider::groove:horizontal {\n"
+"  border: 1px solid #bbb;\n"
+"  background: #ddd;\n"
+"  height: 8px;\n"
+"  border-radius: 4px;\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal {\n"
+"  background: #22d;\n"
+"  border: 1px solid"
+                        " #22d;\n"
+"  width: 18px;\n"
+"  height: 18px;\n"
+"  margin: -6px 0;\n"
+"  border-radius: 9px;\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal:hover {\n"
+"  background: #6d2;\n"
+"  border: 1px solid #6d2;\n"
+"}\n"
+"\n"
+"QSlider::sub-page:horizontal {\n"
+"  background: #6d2;\n"
+"  border-radius: 4px;\n"
+"}\n"
+"")
         self.gridFrame = QFrame(settingswindow)
         self.gridFrame.setObjectName(u"gridFrame")
         self.gridFrame.setGeometry(QRect(10, 10, 301, 251))
@@ -36,7 +91,9 @@ class Ui_settingswindow(object):
 "\n"
 "Line {\n"
 "border: None;\n"
-"}")
+"}\n"
+"\n"
+"")
         self.modemNameDisplay = QLabel(self.gridFrame)
         self.modemNameDisplay.setObjectName(u"modemNameDisplay")
         self.modemNameDisplay.setGeometry(QRect(10, 10, 281, 31))
@@ -59,26 +116,23 @@ class Ui_settingswindow(object):
         self.horizontalSlider.setObjectName(u"horizontalSlider")
         self.horizontalSlider.setGeometry(QRect(10, 140, 281, 20))
         self.horizontalSlider.setStyleSheet(u"QSlider::groove:horizontal {\n"
-"    background: #e0e0e0;\n"
-"    border-radius: 10px;\n"
 "    height: 6px;\n"
+"    background: #d7d7d7;\n"
+"    border-radius: 3px;\n"
 "}\n"
 "\n"
 "QSlider::handle:horizontal {\n"
 "    background: #ffffff;\n"
-"    border: 2px solid #d1d9e6;\n"
-"    width: 18px;\n"
-"    height: 18px;\n"
-"    margin: -7px 0;\n"
-"    border-radius: 9px;\n"
-"    box-shadow: 3px 3px 6px #b8b8b8, -3px -3px 6px #ffffff;\n"
+"    width: 16px;\n"
+"    height: 16px;\n"
+"    margin: -5px 0;\n"
+"    border-radius: 8px;\n"
 "}\n"
 "\n"
 "QSlider::sub-page:horizontal {\n"
-"    background: #3498db;\n"
-"    border-radius: 10px;\n"
-"}\n"
-"")
+"    background: #ffffff;\n"
+"    border-radius: 3px;\n"
+"}")
         self.horizontalSlider.setMaximum(100)
         self.horizontalSlider.setSingleStep(1)
         self.horizontalSlider.setValue(10)
@@ -93,21 +147,23 @@ class Ui_settingswindow(object):
         self.archivateData.setGeometry(QRect(10, 170, 281, 31))
         self.archivateData.setStyleSheet(u"font: 11pt")
         icon = QIcon()
-        icon.addFile(u"icons/archive.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u"../../../../.designer/backup/icons/archive.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.archivateData.setIcon(icon)
         self.saveSettings = QPushButton(self.gridFrame)
         self.saveSettings.setObjectName(u"saveSettings")
         self.saveSettings.setGeometry(QRect(10, 210, 131, 31))
-        self.saveSettings.setStyleSheet(u"font: 11pt")
+        self.saveSettings.setStyleSheet(u"font: 11pt;\n"
+"\n"
+"")
         icon1 = QIcon()
-        icon1.addFile(u"icons/yes.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u"../../../../.designer/backup/icons/yes.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.saveSettings.setIcon(icon1)
         self.cancelSettings = QPushButton(self.gridFrame)
         self.cancelSettings.setObjectName(u"cancelSettings")
         self.cancelSettings.setGeometry(QRect(150, 210, 141, 31))
         self.cancelSettings.setStyleSheet(u"font: 11pt")
         icon2 = QIcon()
-        icon2.addFile(u"icons/no.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u"../../../../.designer/backup/icons/no.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.cancelSettings.setIcon(icon2)
         self.modemNameDisplay.raise_()
         self.modemName.raise_()
