@@ -33,7 +33,7 @@ class SmsTools(QMainWindow):
 
 
         # инициализация видева
-        self.capture = cv2.VideoCapture('darkBlue1.mp4')
+        self.capture = cv2.VideoCapture(f"Files/backgrounds/{self.settings['theme']}.mp4")
         self.snapshot = QPixmap()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)

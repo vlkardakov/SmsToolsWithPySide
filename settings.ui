@@ -13,7 +13,7 @@
   <property name="minimumSize">
    <size>
     <width>320</width>
-    <height>300</height>
+    <height>360</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -135,6 +135,9 @@ border: None;
      <string notr="true">background-color: rgba(255,255,255,0);
 border: None;</string>
     </property>
+    <property name="text">
+     <string>Загрузка...</string>
+    </property>
    </widget>
    <widget class="QLineEdit" name="modemSpeed">
     <property name="geometry">
@@ -148,6 +151,9 @@ border: None;</string>
     <property name="styleSheet">
      <string notr="true">background-color: rgba(255,255,255,0);
 border: None;</string>
+    </property>
+    <property name="text">
+     <string>Загрузка...</string>
     </property>
    </widget>
    <widget class="QLabel" name="ModemSpeedDisplay">
@@ -169,7 +175,7 @@ border: None;</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Скорость модема: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QSlider" name="horizontalSlider">
+   <widget class="QSlider" name="charge_warning">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -321,23 +327,6 @@ background-color: rgba(255,255,255,80);
       <normaloff>../../../../.designer/backup/icons/no.svg</normaloff>../../../../.designer/backup/icons/no.svg</iconset>
     </property>
    </widget>
-   <widget class="QCheckBox" name="Animated">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>170</y>
-      <width>16</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">border: None;
-background-color: rgba(255,255,255,0)</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
@@ -352,17 +341,77 @@ background-color: rgba(255,255,255,0)</string>
 background-color: rgba(255,255,255,0)</string>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Анимировать фон&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Тема градиента: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QComboBox" name="chooseTheme">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>160</x>
       <y>170</y>
-      <width>121</width>
+      <width>131</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QComboBox {
+    background-color: rgba(255,255,255,20);
+    border: 1px solid rgba(255,255,255,40);
+    border-radius: 7px;
+    color: white;
+    padding: 5px;
+    font: 11pt;
+}
+
+QComboBox:hover {
+    background-color: rgba(255,255,255,50);
+}
+
+QComboBox:pressed {
+    background-color: rgba(255,255,255,80);
+}
+
+QComboBox::drop-down {
+    border: none;
+    background: transparent;
+}
+
+QComboBox QAbstractItemView {
+    background-color: rgba(255,255,255,20);
+    border: 1px solid rgba(255,255,255,40);
+    border-radius: 7px;
+    color: white;
+    selection-background-color: rgba(255,255,255,50);
+    selection-color: white;
+    outline: none;
+}
+
+QComboBox QAbstractItemView::item {
+    height: 24px;
+    padding: 5px;
+}
+
+QComboBox QAbstractItemView::item:hover {
+    background-color: rgba(255,255,255,50);
+}</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="charge_warning_display">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>105</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255,255,255,0);
+border: None;
+font: 11pt;</string>
+    </property>
+    <property name="text">
+     <string>Загрузка...</string>
     </property>
    </widget>
    <zorder>label</zorder>
@@ -370,13 +419,13 @@ background-color: rgba(255,255,255,0)</string>
    <zorder>modemName</zorder>
    <zorder>ModemSpeedDisplay</zorder>
    <zorder>modemSpeed</zorder>
-   <zorder>horizontalSlider</zorder>
+   <zorder>charge_warning</zorder>
    <zorder>critical_charge</zorder>
    <zorder>archivateData</zorder>
    <zorder>saveSettings</zorder>
    <zorder>cancelSettings</zorder>
-   <zorder>Animated</zorder>
    <zorder>chooseTheme</zorder>
+   <zorder>charge_warning_display</zorder>
   </widget>
   <widget class="QFrame" name="gridFrame_2">
    <property name="geometry">

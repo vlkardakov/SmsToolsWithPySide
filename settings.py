@@ -3,11 +3,13 @@ from datetime import datetime
 from PySide6.QtCore import Qt, QTimer, QTime
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget, QTextBrowser, QTextEdit, \
     QPushButton, QVBoxLayout, QWidget, QComboBox
-from Scripts.bottle import delete
 from openpyxl import load_workbook, Workbook
 from ui_settings import Ui_settingswindow
 import cv2
 from PySide6.QtGui import QImage, QPixmap, QPainter, QPainterPath
+
+def convertToBool(s):
+    return s == "True"
 
 
 def read_settings():
@@ -57,7 +59,6 @@ class Settings(QMainWindow):
         self.ui.modemName.clearFocus()
 
         self.ui.modemSpeed.setText(self.settings['speed'])
-        self.ui.Animated.setChecked(bool(self.settings['animated']))
         self.ui.chooseTheme.setCurrentText(self.settings['theme'])
 
         # Инициализация видео
@@ -66,12 +67,13 @@ class Settings(QMainWindow):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
         self.start_time = QTime.currentTime()
-
-        # Запускаем воспроизведение
-        self.timer.start(30)  # 30ms = ~33fps
-
         # Делаем фон прозрачным
         self.setAttribute(Qt.WA_TranslucentBackground)
+        # Запускаем воспроизведение
+        self.timer.start(30)
+
+
+
         self.setWindowFlags(Qt.FramelessWindowHint)  # titlebar
 
         # Привязка кнопок
@@ -79,14 +81,31 @@ class Settings(QMainWindow):
         self.ui.cancelSettings.clicked.connect(self.cancelSettings)
         self.ui.closeButton.clicked.connect(self.close)
         self.ui.minimizeButton.clicked.connect(self.showMinimized)
+        self.ui.saveSettings.clicked.connect(self.save)
 
         # Привязка сигнала выбора темы
         self.ui.chooseTheme.currentIndexChanged.connect(self.on_video_changed)
+        self.ui.modemSpeed.textChanged.connect(self.updateSpeed)
+        self.ui.modemName.textChanged.connect(self.updateModel)
 
+    def updateSpeed(self):
+        self.settings['speed'] = self.ui.modemSpeed.text()
+
+    def updateModel(self):
+        self.settings['model'] = self.ui.modemName.text()
+    def save(self):
+        save_settings(self.settings)
+
+        self.close()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragPos = event.globalPosition().toPoint()
+    def mouseMoveEvent(self, event):
+        if event.buttons() == Qt.LeftButton:
+            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = event.globalPosition().toPoint()
+            event.accept()
 
     def update_frame(self):
         if self.capture.isOpened():
@@ -195,6 +214,7 @@ class Settings(QMainWindow):
             self.ui.chooseTheme.addItem(name_without_ext, userData=os.path.join(backgrounds_path, video))
 
     def on_video_changed(self, index):
+        self.settings['theme'] = self.ui.chooseTheme.currentText()
         # Получаем полный путь к файлу из userData
         video_path = self.ui.chooseTheme.itemData(index)
         # Здесь можно обновить видео

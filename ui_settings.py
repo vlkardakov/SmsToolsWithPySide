@@ -15,16 +15,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
-    QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QSlider, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QLabel,
+    QLineEdit, QPushButton, QSizePolicy, QSlider,
+    QWidget)
 
 class Ui_settingswindow(object):
     def setupUi(self, settingswindow):
         if not settingswindow.objectName():
             settingswindow.setObjectName(u"settingswindow")
         settingswindow.resize(320, 360)
-        settingswindow.setMinimumSize(QSize(320, 300))
+        settingswindow.setMinimumSize(QSize(320, 360))
         settingswindow.setMaximumSize(QSize(320, 360))
         settingswindow.setStyleSheet(u"background-color: qlineargradient(spread:reflect, x1:0.934, y1:1, x2:0.127, y2:0.244, stop:0 rgba(10, 13, 18, 255), stop:1 rgba(54, 63, 80, 255));\n"
 "QMainWindow {\n"
@@ -113,10 +113,10 @@ class Ui_settingswindow(object):
         self.ModemSpeedDisplay.setObjectName(u"ModemSpeedDisplay")
         self.ModemSpeedDisplay.setGeometry(QRect(10, 60, 281, 31))
         self.ModemSpeedDisplay.setMaximumSize(QSize(10000, 1000))
-        self.horizontalSlider = QSlider(self.gridFrame)
-        self.horizontalSlider.setObjectName(u"horizontalSlider")
-        self.horizontalSlider.setGeometry(QRect(10, 140, 281, 20))
-        self.horizontalSlider.setStyleSheet(u"QSlider::groove:horizontal {\n"
+        self.charge_warning = QSlider(self.gridFrame)
+        self.charge_warning.setObjectName(u"charge_warning")
+        self.charge_warning.setGeometry(QRect(10, 140, 281, 20))
+        self.charge_warning.setStyleSheet(u"QSlider::groove:horizontal {\n"
 "    height: 6px;\n"
 "    background: #d7d7d7;\n"
 "    border-radius: 3px;\n"
@@ -134,10 +134,10 @@ class Ui_settingswindow(object):
 "    background: #ffffff;\n"
 "    border-radius: 3px;\n"
 "}")
-        self.horizontalSlider.setMaximum(100)
-        self.horizontalSlider.setSingleStep(1)
-        self.horizontalSlider.setValue(10)
-        self.horizontalSlider.setOrientation(Qt.Horizontal)
+        self.charge_warning.setMaximum(100)
+        self.charge_warning.setSingleStep(1)
+        self.charge_warning.setValue(10)
+        self.charge_warning.setOrientation(Qt.Horizontal)
         self.critical_charge = QLabel(self.gridFrame)
         self.critical_charge.setObjectName(u"critical_charge")
         self.critical_charge.setGeometry(QRect(10, 100, 221, 31))
@@ -197,11 +197,6 @@ class Ui_settingswindow(object):
         icon2 = QIcon()
         icon2.addFile(u"../../../../.designer/backup/icons/no.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.cancelSettings.setIcon(icon2)
-        self.Animated = QCheckBox(self.gridFrame)
-        self.Animated.setObjectName(u"Animated")
-        self.Animated.setGeometry(QRect(270, 170, 16, 31))
-        self.Animated.setStyleSheet(u"border: None;\n"
-"background-color: rgba(255,255,255,0)")
         self.label = QLabel(self.gridFrame)
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(10, 170, 131, 31))
@@ -209,19 +204,65 @@ class Ui_settingswindow(object):
 "background-color: rgba(255,255,255,0)")
         self.chooseTheme = QComboBox(self.gridFrame)
         self.chooseTheme.setObjectName(u"chooseTheme")
-        self.chooseTheme.setGeometry(QRect(140, 170, 121, 31))
+        self.chooseTheme.setGeometry(QRect(160, 170, 131, 31))
+        self.chooseTheme.setStyleSheet(u"QComboBox {\n"
+"    background-color: rgba(255,255,255,20);\n"
+"    border: 1px solid rgba(255,255,255,40);\n"
+"    border-radius: 7px;\n"
+"    color: white;\n"
+"    padding: 5px;\n"
+"    font: 11pt;\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"    background-color: rgba(255,255,255,50);\n"
+"}\n"
+"\n"
+"QComboBox:pressed {\n"
+"    background-color: rgba(255,255,255,80);\n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    border: none;\n"
+"    background: transparent;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView {\n"
+"    background-color: rgba(255,255,255,20);\n"
+"    border: 1px solid rgba(255,255,255,40);\n"
+"    border-radius: 7px;\n"
+"    color: white;\n"
+"    selection-background-color: rgba(255,255,255,50);\n"
+"    selection-color: white;\n"
+"    outline: none;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView::item {\n"
+"    height: 24px;\n"
+"    padding: 5px;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView::item:hover {\n"
+"    background-color: rgba(255,255,255,50);\n"
+"}")
+        self.charge_warning_display = QLabel(self.gridFrame)
+        self.charge_warning_display.setObjectName(u"charge_warning_display")
+        self.charge_warning_display.setGeometry(QRect(220, 105, 71, 21))
+        self.charge_warning_display.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
+"border: None;\n"
+"font: 11pt;")
         self.label.raise_()
         self.modemNameDisplay.raise_()
         self.modemName.raise_()
         self.ModemSpeedDisplay.raise_()
         self.modemSpeed.raise_()
-        self.horizontalSlider.raise_()
+        self.charge_warning.raise_()
         self.critical_charge.raise_()
         self.archivateData.raise_()
         self.saveSettings.raise_()
         self.cancelSettings.raise_()
-        self.Animated.raise_()
         self.chooseTheme.raise_()
+        self.charge_warning_display.raise_()
         self.gridFrame_2 = QFrame(settingswindow)
         self.gridFrame_2.setObjectName(u"gridFrame_2")
         self.gridFrame_2.setGeometry(QRect(10, 10, 301, 21))
@@ -288,13 +329,15 @@ class Ui_settingswindow(object):
     def retranslateUi(self, settingswindow):
         settingswindow.setWindowTitle(QCoreApplication.translate("settingswindow", u"\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438", None))
         self.modemNameDisplay.setText(QCoreApplication.translate("settingswindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043c\u043e\u0434\u0435\u043c\u0430:</span></p></body></html>", None))
+        self.modemName.setText(QCoreApplication.translate("settingswindow", u"\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...", None))
+        self.modemSpeed.setText(QCoreApplication.translate("settingswindow", u"\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...", None))
         self.ModemSpeedDisplay.setText(QCoreApplication.translate("settingswindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u0421\u043a\u043e\u0440\u043e\u0441\u0442\u044c \u043c\u043e\u0434\u0435\u043c\u0430: </span></p></body></html>", None))
         self.critical_charge.setText(QCoreApplication.translate("settingswindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u041a\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u0437\u0430\u0440\u044f\u0434\u0430:</span></p></body></html>", None))
         self.archivateData.setText(QCoreApplication.translate("settingswindow", u"\u0410\u0440\u0445\u0438\u0444\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0434\u0430\u043d\u043d\u044b\u0435", None))
         self.saveSettings.setText(QCoreApplication.translate("settingswindow", u"\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c", None))
         self.cancelSettings.setText(QCoreApplication.translate("settingswindow", u"\u041e\u0442\u043c\u0435\u043d\u0430", None))
-        self.Animated.setText("")
-        self.label.setText(QCoreApplication.translate("settingswindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u0410\u043d\u0438\u043c\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0444\u043e\u043d</span></p></body></html>", None))
+        self.label.setText(QCoreApplication.translate("settingswindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u0422\u0435\u043c\u0430 \u0433\u0440\u0430\u0434\u0438\u0435\u043d\u0442\u0430: </span></p></body></html>", None))
+        self.charge_warning_display.setText(QCoreApplication.translate("settingswindow", u"\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...", None))
         self.closeButton.setText("")
         self.minimizeButton.setText("")
         self.labeltitle.setText(QCoreApplication.translate("settingswindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438</span></p></body></html>", None))
