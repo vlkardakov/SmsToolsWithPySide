@@ -23,15 +23,24 @@ class SmsTools(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+
+
+        #настройки
+        self.settings = self.read_settings()
+        self.settings['port'] = None  # Настроить
+        self.canModem = False
+        self.incomingCount = 0
+
+
         # инициализация видева
-        self.capture = cv2.VideoCapture('violet.mp4')
+        self.capture = cv2.VideoCapture('darkBlue1.mp4')
         self.snapshot = QPixmap()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
         self.start_time = QTime.currentTime()
 
         # запуск
-        self.timer.start(30)  # 30ms = ~33fps
+        self.timer.start(30)
 
         self.setWindowFlags(Qt.FramelessWindowHint)  # titlebar
         self.setAttribute(Qt.WA_TranslucentBackground)  # пусть фон будет прозрачным чтобы видет видева
@@ -40,11 +49,6 @@ class SmsTools(QMainWindow):
             border-radius: 20px;
         """)
 
-        # Чтение настроек
-        self.settings = self.read_settings()
-        self.settings['port'] = None  # Настроить
-        self.canModem = False
-        self.incomingCount = 0
 
         self.files = SimpleNamespace()
         self.filePaths = SimpleNamespace()
@@ -110,7 +114,7 @@ class SmsTools(QMainWindow):
         self.ui.get_messages.setText(f"Получить сообщения ({self.incomingCount})")
 
     def setup_modem(self):
-        # Настройка файлов
+        #настройка файлов
 
         self.filePaths.smsLog = "Files/sms_log.xlsx"
         self.filePaths.contacts = "Files/contacts.xlsx"
@@ -118,7 +122,7 @@ class SmsTools(QMainWindow):
         self.files.contacts = load_workbook(self.filePaths.contacts, data_only=True)  # Загружаем
         self.contacts = self.get_all_contacts()  # Загружаем
 
-        # Инициализация модема
+        #Инициализация модема
         self.kill_connect_manager()  # Отключение коннект-менеджера
         self.find_modem()  # Попытка найти модем
         if self.canModem:  # Если модем найден, подключение. ОБязательные вещи.
@@ -153,7 +157,7 @@ class SmsTools(QMainWindow):
             # проходим по каждому доступному порту
             for port_info in available_ports:
                 port = port_info.device
-                device_name = port_info.description  # Получаем имя устройства
+                device_name = port_info.description  #получаем имя устройства
                 if self.settings['model'] in device_name:
                     try:
                         ser = serial.Serial(port, timeout=2)
@@ -188,7 +192,7 @@ class SmsTools(QMainWindow):
         now = datetime.now()
         return now.strftime('%d/%m/%Y'), now.strftime('%H:%M:%S')
 
-    # Функция для парсинга и извлечения ообщений
+    # Функция для парсинга сообщений
     def parse_sms_response(self, response):
         messages = []
         lines = response.splitlines()
@@ -270,18 +274,18 @@ class SmsTools(QMainWindow):
         # print("Проверяем...")
         response = self.send_at_command('AT+CMGL="ALL"')
 
-        # Обработка ответа и запись в таблицу
+        #обработка ответа и запись в таблицу
         sms_messages = self.parse_sms_response(response)
         combined_messages = self.combine_long_messages(sms_messages)
 
-        # Проверяем, существует ли файл с контактами
+        #проверяем, существует ли файл с контактами
         print(self.filePaths.contacts)
         print(self.filePaths.smsLog)
         if not os.path.exists(str(self.filePaths.contacts)):
             self.conprint(f"Файл контактов не найден.")
             return
         # self.conprint("Файл контактов найден")
-        # Вывод содержимого SMS
+        # Вывод содержимого
         if combined_messages:
             # print()
             # print("Найдены SMS сообщения:", end = '')
@@ -332,7 +336,6 @@ class SmsTools(QMainWindow):
             current_date = datetime.now().strftime('%d/%m/%Y')
             current_time = datetime.now().strftime('%H:%M:%S')
 
-            # Ищем существующую строку с таким же номером и временем
             existing_row = None
             for row in ws.iter_rows(min_row=2, values_only=False):
                 if (row[0].value == sender_number and
@@ -343,15 +346,11 @@ class SmsTools(QMainWindow):
                     break
 
             if existing_row:
-                # Если найдена существующая строка, добавляем к ней новое сообщение
                 existing_row[2].value += "\n" + message
-                # Увеличиваем высоту строки
                 lines = existing_row[2].value.count('\n') + 1
                 ws.row_dimensions[existing_row[0].row].height = 13.7
             else:
-                # Если не найдена существующая строка, добавляем новую
                 ws.append([sender_number, contact_name, message, date_received, current_time])
-                # Устанавливаем высоту строки
                 lines = message.count('\n') + 1
                 ws.row_dimensions[ws.max_row].height = 13.7
 
@@ -737,13 +736,11 @@ class SmsTools(QMainWindow):
                 # повтор
                 if self.capture.get(cv2.CAP_PROP_POS_FRAMES) == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
                     self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                # BGR в RGB
 
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 h, w, ch = frame.shape
                 bytes_per_line = ch * w
 
-                # QImage这个英雄
                 image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
                 self.snapshot = QPixmap.fromImage(image)
                 self.update()
@@ -751,16 +748,13 @@ class SmsTools(QMainWindow):
     def paintEvent(self, event):
         if not self.snapshot.isNull():
             painter = QPainter(self)
-            painter.setRenderHint(QPainter.Antialiasing)  # Включаем сглаживание
+            painter.setRenderHint(QPainter.Antialiasing)
 
-            # Создаем путь с закругленными углами
             path = QPainterPath()
-            path.addRoundedRect(0, 0, self.width(), self.height(), 20, 20)
+            path.addRoundedRect(0, 0, self.width(), self.height(), 10, 10)
 
-            # Устанавливаем маску отсечения
             painter.setClipPath(path)
 
-            # Рисуем видео
             painter.drawPixmap(0, 0, self.snapshot.scaled(
                 self.size(),
                 Qt.KeepAspectRatioByExpanding,

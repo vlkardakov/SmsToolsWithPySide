@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>525</height>
+    <height>530</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -19,7 +19,7 @@
   <property name="maximumSize">
    <size>
     <width>600</width>
-    <height>525</height>
+    <height>530</height>
    </size>
   </property>
   <property name="cursor">
@@ -370,7 +370,7 @@ background-color: rgba(255,255,255,80);
       </rect>
      </property>
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="whatsThis">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -456,6 +456,110 @@ background-color: rgba(255,255,255,80);
        <normaloff>icons/save.svg</normaloff>icons/save.svg</iconset>
      </property>
     </widget>
+    <widget class="QFrame" name="gridFrame_2">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>90</y>
+       <width>171</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgba(255,255,255,20);
+border: 1px solid rgba(255,255,255,40);
+border-radius: 7;
+color: white;
+QPushButton {
+background-color: rgba(255,255,255,30);
+}
+
+QPushButton:hover {
+background-color: rgba(255,255,255,50);
+}
+
+QPushButton:pressed {
+background-color: rgba(255,255,255,80);
+}</string>
+     </property>
+     <widget class="QPushButton" name="closeButton_3">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>0</y>
+        <width>30</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+background-color: rgba(255,255,255,20);
+}
+
+QPushButton:hover {
+background-color: rgba(255,10,10,80);
+}
+
+QPushButton:pressed {
+background-color: rgba(255,255,255,80);
+}</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/close.svg</normaloff>icons/close.svg</iconset>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="minimizeButton_3">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>0</y>
+        <width>30</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+background-color: rgba(255,255,255,20);
+}
+
+QPushButton:hover {
+background-color: rgba(30,30,255,80);
+}
+
+QPushButton:pressed {
+background-color: rgba(255,255,255,80);
+}</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>icons/minimize.svg</normaloff>icons/minimize.svg</iconset>
+      </property>
+     </widget>
+     <widget class="QLabel" name="labeltitle_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>0</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border: None;
+background-color: rgba(255,255,255,0);</string>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Форма&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </widget>
     <zorder>add_contact</zorder>
     <zorder>display_name</zorder>
     <zorder>display_number</zorder>
@@ -472,6 +576,7 @@ background-color: rgba(255,255,255,80);
     <zorder>get_messages</zorder>
     <zorder>restart</zorder>
     <zorder>save</zorder>
+    <zorder>gridFrame_2</zorder>
    </widget>
    <widget class="QFrame" name="output_form">
     <property name="geometry">

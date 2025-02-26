@@ -24,9 +24,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(600, 525)
+        MainWindow.resize(600, 530)
         MainWindow.setMinimumSize(QSize(600, 525))
-        MainWindow.setMaximumSize(QSize(600, 525))
+        MainWindow.setMaximumSize(QSize(600, 530))
         MainWindow.setCursor(QCursor(Qt.ArrowCursor))
         MainWindow.setMouseTracking(False)
         MainWindow.setLayoutDirection(Qt.LeftToRight)
@@ -227,6 +227,63 @@ class Ui_MainWindow(object):
         icon6 = QIcon()
         icon6.addFile(u"icons/save.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.save.setIcon(icon6)
+        self.gridFrame_2 = QFrame(self.input_form)
+        self.gridFrame_2.setObjectName(u"gridFrame_2")
+        self.gridFrame_2.setGeometry(QRect(140, 90, 171, 21))
+        self.gridFrame_2.setStyleSheet(u"background-color: rgba(255,255,255,20);\n"
+"border: 1px solid rgba(255,255,255,40);\n"
+"border-radius: 7;\n"
+"color: white;\n"
+"QPushButton {\n"
+"background-color: rgba(255,255,255,30);\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background-color: rgba(255,255,255,50);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background-color: rgba(255,255,255,80);\n"
+"}")
+        self.closeButton_3 = QPushButton(self.gridFrame_2)
+        self.closeButton_3.setObjectName(u"closeButton_3")
+        self.closeButton_3.setGeometry(QRect(140, 0, 30, 21))
+        self.closeButton_3.setStyleSheet(u"QPushButton {\n"
+"background-color: rgba(255,255,255,20);\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background-color: rgba(255,10,10,80);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background-color: rgba(255,255,255,80);\n"
+"}")
+        icon7 = QIcon()
+        icon7.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.closeButton_3.setIcon(icon7)
+        self.minimizeButton_3 = QPushButton(self.gridFrame_2)
+        self.minimizeButton_3.setObjectName(u"minimizeButton_3")
+        self.minimizeButton_3.setGeometry(QRect(100, 0, 30, 21))
+        self.minimizeButton_3.setStyleSheet(u"QPushButton {\n"
+"background-color: rgba(255,255,255,20);\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background-color: rgba(30,30,255,80);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background-color: rgba(255,255,255,80);\n"
+"}")
+        icon8 = QIcon()
+        icon8.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.minimizeButton_3.setIcon(icon8)
+        self.labeltitle_3 = QLabel(self.gridFrame_2)
+        self.labeltitle_3.setObjectName(u"labeltitle_3")
+        self.labeltitle_3.setGeometry(QRect(10, 0, 91, 21))
+        self.labeltitle_3.setStyleSheet(u"border: None;\n"
+"background-color: rgba(255,255,255,0);")
         self.add_contact.raise_()
         self.display_name.raise_()
         self.display_number.raise_()
@@ -243,6 +300,7 @@ class Ui_MainWindow(object):
         self.get_messages.raise_()
         self.restart.raise_()
         self.save.raise_()
+        self.gridFrame_2.raise_()
         self.output_form = QFrame(self.centralwidget)
         self.output_form.setObjectName(u"output_form")
         self.output_form.setGeometry(QRect(10, 460, 581, 61))
@@ -267,9 +325,9 @@ class Ui_MainWindow(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        icon7 = QIcon()
-        icon7.addFile(u"icons/bolt.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.sendButton.setIcon(icon7)
+        icon9 = QIcon()
+        icon9.addFile(u"icons/bolt.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.sendButton.setIcon(icon9)
 
         self.gridLayout.addWidget(self.sendButton, 4, 1, 2, 1)
 
@@ -310,9 +368,7 @@ class Ui_MainWindow(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        icon8 = QIcon()
-        icon8.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.closeButton.setIcon(icon8)
+        self.closeButton.setIcon(icon7)
         self.minimizeButton = QPushButton(self.gridFrame)
         self.minimizeButton.setObjectName(u"minimizeButton")
         self.minimizeButton.setGeometry(QRect(510, 0, 30, 21))
@@ -327,9 +383,7 @@ class Ui_MainWindow(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        icon9 = QIcon()
-        icon9.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.minimizeButton.setIcon(icon9)
+        self.minimizeButton.setIcon(icon8)
         self.labeltitle = QLabel(self.gridFrame)
         self.labeltitle.setObjectName(u"labeltitle")
         self.labeltitle.setGeometry(QRect(10, 0, 231, 21))
@@ -377,7 +431,7 @@ class Ui_MainWindow(object):
         self.open_folder.setText(QCoreApplication.translate("MainWindow", u"\u0424\u0430\u0439\u043b\u044b", None))
         self.analyze.setText(QCoreApplication.translate("MainWindow", u"\u0410\u043d\u0430\u043b\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0434\u0430\u043d\u043d\u044b\u0435", None))
 #if QT_CONFIG(tooltip)
-        self.get_messages.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>2</p></body></html>", None))
+        self.get_messages.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><br/></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(whatsthis)
         self.get_messages.setWhatsThis(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><br/></p></body></html>", None))
@@ -385,6 +439,9 @@ class Ui_MainWindow(object):
         self.get_messages.setText(QCoreApplication.translate("MainWindow", u"\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u044f", None))
         self.restart.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043c\u043e\u0434\u0435\u043c", None))
         self.save.setText("")
+        self.closeButton_3.setText("")
+        self.minimizeButton_3.setText("")
+        self.labeltitle_3.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u0424\u043e\u0440\u043c\u0430</span></p></body></html>", None))
         self.sendButton.setText(QCoreApplication.translate("MainWindow", u"\u041e\u0442\u043f\u0440\u0430\u0432\u0438\u0442\u044c!", None))
         self.closeButton.setText("")
         self.minimizeButton.setText("")

@@ -1,6 +1,7 @@
 debug = 0
+animated = True
 sleep_time = 10
 charge_warning = 54
-theme = DarkGrey13
+theme = darkBlue1
 speed = 9600
 model = HUAWEI Mobile Connect - 3G PC UI Interface
