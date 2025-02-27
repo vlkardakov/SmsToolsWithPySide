@@ -72,58 +72,6 @@ QPushButton:pressed {
 background-color: rgba(255,255,255,80);
 }</string>
     </property>
-    <widget class="QTextEdit" name="number">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>10</y>
-       <width>111</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgba(255,255,255,0);
-border: 1px solid rgba(255,255,255,0);
-border-radius: 7;
-font: 11pt;</string>
-     </property>
-     <property name="html">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-hr { height: 1px; border-width: 0; }
-li.unchecked::marker { content: &quot;\2610&quot;; }
-li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Grammatica'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Gramatica';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
-    <widget class="QTextEdit" name="name">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>10</y>
-       <width>71</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgba(255,255,255,0);
-border: 1px solid rgba(255,255,255,0);
-border-radius: 7;
-font: 11pt;</string>
-     </property>
-     <property name="html">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-hr { height: 1px; border-width: 0; }
-li.unchecked::marker { content: &quot;\2610&quot;; }
-li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Grammatica'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Gramatica';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="add_contact">
      <property name="geometry">
       <rect>
@@ -200,6 +148,7 @@ QTableWidget::item {
 QTableWidget::item:selected {
     background-color: rgba(255, 255, 255, 40);  /* Полупрозрачный белый при выделении */
     color: white;
+	border: None;
 }
 
 QTableWidget::item:hover {
@@ -324,7 +273,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/search.svg</normaloff>icons/search.svg</iconset>
+       <normaloff>Files/icons/search.svg</normaloff>Files/icons/search.svg</iconset>
      </property>
     </widget>
     <widget class="QTextBrowser" name="console">
@@ -377,7 +326,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/settings.svg</normaloff>icons/settings.svg</iconset>
+       <normaloff>Files/icons/settings.svg</normaloff>Files/icons/settings.svg</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="open_folder">
@@ -407,7 +356,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/folder.svg</normaloff>icons/folder.svg</iconset>
+       <normaloff>Files/icons/folder.svg</normaloff>Files/icons/folder.svg</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="analyze">
@@ -437,7 +386,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/analyze.svg</normaloff>icons/analyze.svg</iconset>
+       <normaloff>Files/icons/analyze.svg</normaloff>Files/icons/analyze.svg</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="get_messages">
@@ -473,7 +422,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/mail.svg</normaloff>icons/mail.svg</iconset>
+       <normaloff>Files/icons/mail.svg</normaloff>Files/icons/mail.svg</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="restart">
@@ -503,7 +452,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/refresh.svg</normaloff>icons/refresh.svg</iconset>
+       <normaloff>Files/icons/autorenew.svg</normaloff>Files/icons/autorenew.svg</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="save">
@@ -533,25 +482,41 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/save.svg</normaloff>icons/save.svg</iconset>
+       <normaloff>Files/icons/save.svg</normaloff>Files/icons/save.svg</iconset>
      </property>
     </widget>
-    <zorder>add_contact</zorder>
-    <zorder>display_name</zorder>
-    <zorder>display_number</zorder>
-    <zorder>contacts</zorder>
-    <zorder>display_search</zorder>
-    <zorder>number</zorder>
-    <zorder>name</zorder>
-    <zorder>arguments</zorder>
-    <zorder>search</zorder>
-    <zorder>console</zorder>
-    <zorder>settings</zorder>
-    <zorder>open_folder</zorder>
-    <zorder>analyze</zorder>
-    <zorder>get_messages</zorder>
-    <zorder>restart</zorder>
-    <zorder>save</zorder>
+    <widget class="QLineEdit" name="number">
+     <property name="geometry">
+      <rect>
+       <x>102</x>
+       <y>10</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgba(255,255,255,0);
+border: 1px solid rgba(255,255,255,0);
+border-radius: 7;
+font: 11pt;</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="name">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>10</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgba(255,255,255,0);
+border: 1px solid rgba(255,255,255,0);
+border-radius: 7;
+font: 11pt;</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="output_form">
     <property name="geometry">
@@ -601,7 +566,7 @@ background-color: rgba(255,255,255,80);
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>icons/bolt.svg</normaloff>icons/bolt.svg</iconset>
+         <normaloff>Files/icons/bolt.svg</normaloff>Files/icons/bolt.svg</iconset>
        </property>
       </widget>
      </item>
@@ -657,7 +622,7 @@ background-color: rgba(255,30,30,80);
 }
 
 QPushButton:pressed {
-background-color: rgba(255,255,255,80);
+background-color: rgba(255,60,60,100);
 }</string>
      </property>
      <property name="text">
@@ -665,7 +630,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/close.svg</normaloff>icons/close.svg</iconset>
+       <normaloff>Files/icons/close.svg</normaloff>Files/icons/close.svg</iconset>
      </property>
     </widget>
     <widget class="QPushButton" name="minimizeButton">
@@ -689,7 +654,7 @@ background-color: rgba(30,30,255,80);
 }
 
 QPushButton:pressed {
-background-color: rgba(255,255,255,80);
+background-color: rgba(60,60,255,100);
 }</string>
      </property>
      <property name="text">
@@ -697,7 +662,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/minimize.svg</normaloff>icons/minimize.svg</iconset>
+       <normaloff>Files/icons/minimize.svg</normaloff>Files/icons/minimize.svg</iconset>
      </property>
     </widget>
     <widget class="QLabel" name="labeltitle">
@@ -734,11 +699,11 @@ background-color: rgba(255,255,255,20);
 }
 
 QPushButton:hover {
-background-color: rgba(30,255,30,80);
+background-color: rgba(255,255,30,80);
 }
 
 QPushButton:pressed {
-background-color: rgba(255,255,255,80);
+background-color: rgba(255,255,60,100);
 }</string>
      </property>
      <property name="text">
@@ -746,7 +711,7 @@ background-color: rgba(255,255,255,80);
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>icons/restart.svg</normaloff>icons/restart.svg</iconset>
+       <normaloff>Files/icons/restart.svg</normaloff>Files/icons/restart.svg</iconset>
      </property>
     </widget>
    </widget>

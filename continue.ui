@@ -173,7 +173,7 @@ background-color: rgba(255,255,255,80);
    <widget class="QPushButton" name="closeButton">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>240</x>
       <y>0</y>
       <width>30</width>
       <height>21</height>
@@ -198,13 +198,13 @@ background-color: rgba(255,255,255,80);
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>icons/close.svg</normaloff>icons/close.svg</iconset>
+      <normaloff>Files/icons/close.svg</normaloff>Files/icons/close.svg</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="minimizeButton">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>200</x>
       <y>0</y>
       <width>30</width>
       <height>21</height>
@@ -229,7 +229,7 @@ background-color: rgba(255,255,255,80);
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>icons/minimize.svg</normaloff>icons/minimize.svg</iconset>
+      <normaloff>Files/icons/minimize.svg</normaloff>Files/icons/minimize.svg</iconset>
     </property>
    </widget>
    <widget class="QLabel" name="labeltitle">

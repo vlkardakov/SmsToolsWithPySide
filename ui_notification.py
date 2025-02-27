@@ -99,7 +99,7 @@ class Ui_Notification(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon = QIcon()
-        icon.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u"Files/icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.closeButton.setIcon(icon)
         self.minimizeButton = QPushButton(self.Title)
         self.minimizeButton.setObjectName(u"minimizeButton")
@@ -117,7 +117,7 @@ class Ui_Notification(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon1 = QIcon()
-        icon1.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u"Files/icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.minimizeButton.setIcon(icon1)
         self.labeltitle = QLabel(self.Title)
         self.labeltitle.setObjectName(u"labeltitle")

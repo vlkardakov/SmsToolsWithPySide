@@ -90,7 +90,7 @@ class Ui_Form(object):
 "}")
         self.closeButton = QPushButton(self.Title)
         self.closeButton.setObjectName(u"closeButton")
-        self.closeButton.setGeometry(QRect(230, 0, 30, 21))
+        self.closeButton.setGeometry(QRect(240, 0, 30, 21))
         self.closeButton.setStyleSheet(u"QPushButton {\n"
 "border: 1px solid rgba(255,255,255,40);\n"
 "background-color: rgba(255,255,255,20);\n"
@@ -104,11 +104,11 @@ class Ui_Form(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon = QIcon()
-        icon.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u"Files/icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.closeButton.setIcon(icon)
         self.minimizeButton = QPushButton(self.Title)
         self.minimizeButton.setObjectName(u"minimizeButton")
-        self.minimizeButton.setGeometry(QRect(190, 0, 30, 21))
+        self.minimizeButton.setGeometry(QRect(200, 0, 30, 21))
         self.minimizeButton.setStyleSheet(u"QPushButton {\n"
 "border: 1px solid rgba(255,255,255,40);\n"
 "background-color: rgba(255,255,255,20);\n"
@@ -122,7 +122,7 @@ class Ui_Form(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon1 = QIcon()
-        icon1.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u"Files/icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.minimizeButton.setIcon(icon1)
         self.labeltitle = QLabel(self.Title)
         self.labeltitle.setObjectName(u"labeltitle")

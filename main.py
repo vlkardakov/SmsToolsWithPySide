@@ -13,7 +13,7 @@ import cv2
 import pandas as pd
 import serial.tools.list_ports as list_ports
 from PySide6.QtCore import Qt, QTimer, QTime
-from PySide6.QtGui import QTextCursor, QScreen ,QImage, QPixmap, QPainter, QPainterPath
+from PySide6.QtGui import QTextCursor, QIcon, QImage, QPixmap, QPainter, QPainterPath
 from PySide6.QtWidgets import QApplication, QDialog, QMainWindow, QTableWidgetItem, QTableWidget
 from gsmmodem.modem import GsmModem
 from openpyxl import load_workbook, Workbook
@@ -475,7 +475,7 @@ class SmsTools(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.center_window()
-
+        self.setWindowIcon(QIcon("Files/icons/social.ico"))
 
         #настройки
         self.settings = self.read_settings()
@@ -561,10 +561,11 @@ class SmsTools(QMainWindow):
                 event.accept()
         except:
             pass
+    
     def add_contacts(self):
         print("Начинаю добавление...")
-        number = self.ui.number.toPlainText()
-        name = self.ui.name.toPlainText()
+        number = self.ui.number.text()
+        name = self.ui.name.text()
 
         contact = [number, name]
         file_path = self.filePaths.contacts
@@ -933,7 +934,7 @@ class SmsTools(QMainWindow):
         settings_file = "Files/settings.txt"
         if not os.path.exists(settings_file):
             print(f"Файл {settings_file} не существует.")
-            exit()
+            sys.exit()
         settings = {}
         with open(settings_file, 'r') as file:
             for line_num, line in enumerate(file, start=1):
@@ -1065,6 +1066,7 @@ class SmsTools(QMainWindow):
 
         wb.save(self.filePaths.smsLog)
     def keyPressEvent(self, event):
+        print(event)
         # чтобы нажать esq и например отменить выделение или нажать enter и отправить сообщение (потом)
         if self.ui.contacts.hasFocus():
             if event.key() == Qt.Key_Escape:
@@ -1076,8 +1078,11 @@ class SmsTools(QMainWindow):
                     self.delete_contact(numbers)
                     self.ui.contacts.clearSelection()
                     self.load_contacts()
-            else:
-                print(event)
+        elif self.ui.name.hasFocus() or self.ui.number.hasFocus():
+            print("Выделено поле ввода имени или номера")
+            if event.key() == Qt.Key_Return:
+                self.add_contacts()
+
     def search_contacts(self, file_path, search_terms):
         wb = load_workbook(file_path)
         ws = wb.active
@@ -1161,11 +1166,11 @@ class SmsTools(QMainWindow):
         self.ui.contacts.setColumnCount(2)
         self.ui.contacts.setHorizontalHeaderLabels(["Номер", "Имя"])
 
-        self.ui.contacts.setColumnWidth(0, 90)  # Номер телефона
+        self.ui.contacts.setColumnWidth(0, 100)  # Номер телефона
         if len(contacts) <= 7:
-            self.ui.contacts.setColumnWidth(1, 99)  # больше
+            self.ui.contacts.setColumnWidth(1, 89)  # больше
         else:
-            self.ui.contacts.setColumnWidth(1, 88)  # меньше
+            self.ui.contacts.setColumnWidth(1, 78)  # меньше
         self.ui.contacts.setShowGrid(False)
 
 

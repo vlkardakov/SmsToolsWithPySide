@@ -55,20 +55,6 @@ class Ui_MainWindow(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        self.number = QTextEdit(self.input_form)
-        self.number.setObjectName(u"number")
-        self.number.setGeometry(QRect(100, 10, 111, 31))
-        self.number.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
-"border: 1px solid rgba(255,255,255,0);\n"
-"border-radius: 7;\n"
-"font: 11pt;")
-        self.name = QTextEdit(self.input_form)
-        self.name.setObjectName(u"name")
-        self.name.setGeometry(QRect(260, 10, 71, 31))
-        self.name.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
-"border: 1px solid rgba(255,255,255,0);\n"
-"border-radius: 7;\n"
-"font: 11pt;")
         self.add_contact = QPushButton(self.input_form)
         self.add_contact.setObjectName(u"add_contact")
         self.add_contact.setGeometry(QRect(10, 50, 321, 31))
@@ -106,11 +92,12 @@ class Ui_MainWindow(object):
 "QTableWidget::item:selected {\n"
 "    background-color: rgba(255, 255, 255, 40);  /* \u041f\u043e\u043b\u0443\u043f\u0440\u043e\u0437\u0440\u0430\u0447\u043d\u044b\u0439 \u0431\u0435\u043b\u044b\u0439 \u043f\u0440\u0438 \u0432\u044b\u0434\u0435\u043b\u0435\u043d\u0438\u0438 */\n"
 "    color: white;\n"
+"	border: None;\n"
 "}\n"
 "\n"
 "QTableWidget::item:hover {\n"
-"    background-color: rgba(255, 255, 255, 20);  /* \u0415\u0449\u0451 \u0431\u043e\u043b\u0435\u0435 \u0441\u0432\u0435\u0442"
-                        "\u043b\u044b\u0439 \u043f\u0440\u0438 \u043d\u0430\u0432\u0435\u0434\u0435\u043d\u0438\u0438 */\n"
+"    background-color: rgba(255, 255, 255, 20);  /* \u0415\u0449\u0451 \u0431\u043e\u043b\u0435\u0435 \u0441"
+                        "\u0432\u0435\u0442\u043b\u044b\u0439 \u043f\u0440\u0438 \u043d\u0430\u0432\u0435\u0434\u0435\u043d\u0438\u0438 */\n"
 "}\n"
 "\n"
 "QHeaderView::section {\n"
@@ -125,9 +112,9 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "/* \u041f\u043e\u043b\u0437\u0443\u043d\u043e\u043a \u0432\u0435\u0440\u0442\u0438\u043a\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
-"QScrollBar::handle:vertical {\n"
-""
-                        "    background: rgba(255, 255, 255, 0);  /* \u0426\u0432\u0435\u0442 \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430 */\n"
+"QScrollBar::ha"
+                        "ndle:vertical {\n"
+"    background: rgba(255, 255, 255, 0);  /* \u0426\u0432\u0435\u0442 \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430 */\n"
 "    min-height: 20px;                     /* \u041c\u0438\u043d\u0438\u043c\u0430\u043b\u044c\u043d\u0430\u044f \u0432\u044b\u0441\u043e\u0442\u0430 \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430 */\n"
 "    border-radius: 5px;                   /* \u0417\u0430\u043a\u0440\u0443\u0433\u043b\u0435\u043d\u0438\u0435 \u0443\u0433\u043b\u043e\u0432 \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430 */\n"
 "}\n"
@@ -139,8 +126,8 @@ class Ui_MainWindow(object):
 "    height: 0px;                          /* \u0423\u0431\u0438\u0440\u0430\u0435\u043c \u043a\u043d\u043e\u043f\u043a\u0438 \u043f\u0440\u043e\u043a\u0440\u0443\u0442\u043a\u0438 */\n"
 "}\n"
 "\n"
-"/* \u0413\u043e\u0440\u0438\u0437\u043e\u043d\u0442\u0430\u043b\u044c"
-                        "\u043d\u044b\u0439 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440 */\n"
+"/* \u0413\u043e\u0440\u0438\u0437\u043e\u043d"
+                        "\u0442\u0430\u043b\u044c\u043d\u044b\u0439 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440 */\n"
 "QScrollBar:horizontal {\n"
 "    background: rgba(255, 255, 255, 10);\n"
 "    height: 10px;                         /* \u0412\u044b\u0441\u043e\u0442\u0430 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
@@ -164,8 +151,8 @@ class Ui_MainWindow(object):
 "\n"
 "QScrollBar::sub-line:horizontal,\n"
 "QScrollBar::add-line:horizontal {\n"
-"    width: 0px;                           /* \u0423\u0431\u0438"
-                        "\u0440\u0430\u0435\u043c \u043a\u043d\u043e\u043f\u043a\u0438 \u043f\u0440\u043e\u043a\u0440\u0443\u0442\u043a\u0438 */\n"
+"    width: 0px;                        "
+                        "   /* \u0423\u0431\u0438\u0440\u0430\u0435\u043c \u043a\u043d\u043e\u043f\u043a\u0438 \u043f\u0440\u043e\u043a\u0440\u0443\u0442\u043a\u0438 */\n"
 "}\n"
 "\n"
 "/* \u0423\u0431\u0438\u0440\u0430\u0435\u043c \u0444\u043e\u043d \u0443 \u043a\u0440\u0430\u0451\u0432 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
@@ -201,7 +188,7 @@ class Ui_MainWindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon = QIcon()
-        icon.addFile(u"icons/search.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u"Files/icons/search.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.search.setIcon(icon)
         self.console = QTextBrowser(self.input_form)
         self.console.setObjectName(u"console")
@@ -222,7 +209,7 @@ class Ui_MainWindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon1 = QIcon()
-        icon1.addFile(u"icons/settings.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u"Files/icons/settings.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.settings.setIcon(icon1)
         self.open_folder = QPushButton(self.input_form)
         self.open_folder.setObjectName(u"open_folder")
@@ -239,7 +226,7 @@ class Ui_MainWindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon2 = QIcon()
-        icon2.addFile(u"icons/folder.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u"Files/icons/folder.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.open_folder.setIcon(icon2)
         self.analyze = QPushButton(self.input_form)
         self.analyze.setObjectName(u"analyze")
@@ -256,7 +243,7 @@ class Ui_MainWindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon3 = QIcon()
-        icon3.addFile(u"icons/analyze.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon3.addFile(u"Files/icons/analyze.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.analyze.setIcon(icon3)
         self.get_messages = QPushButton(self.input_form)
         self.get_messages.setObjectName(u"get_messages")
@@ -273,7 +260,7 @@ class Ui_MainWindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon4 = QIcon()
-        icon4.addFile(u"icons/mail.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon4.addFile(u"Files/icons/mail.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.get_messages.setIcon(icon4)
         self.restart = QPushButton(self.input_form)
         self.restart.setObjectName(u"restart")
@@ -290,7 +277,7 @@ class Ui_MainWindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon5 = QIcon()
-        icon5.addFile(u"icons/refresh.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon5.addFile(u"Files/icons/autorenew.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.restart.setIcon(icon5)
         self.save = QPushButton(self.input_form)
         self.save.setObjectName(u"save")
@@ -307,24 +294,22 @@ class Ui_MainWindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon6 = QIcon()
-        icon6.addFile(u"icons/save.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon6.addFile(u"Files/icons/save.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.save.setIcon(icon6)
-        self.add_contact.raise_()
-        self.display_name.raise_()
-        self.display_number.raise_()
-        self.contacts.raise_()
-        self.display_search.raise_()
-        self.number.raise_()
-        self.name.raise_()
-        self.arguments.raise_()
-        self.search.raise_()
-        self.console.raise_()
-        self.settings.raise_()
-        self.open_folder.raise_()
-        self.analyze.raise_()
-        self.get_messages.raise_()
-        self.restart.raise_()
-        self.save.raise_()
+        self.number = QLineEdit(self.input_form)
+        self.number.setObjectName(u"number")
+        self.number.setGeometry(QRect(102, 10, 111, 31))
+        self.number.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
+"border: 1px solid rgba(255,255,255,0);\n"
+"border-radius: 7;\n"
+"font: 11pt;")
+        self.name = QLineEdit(self.input_form)
+        self.name.setObjectName(u"name")
+        self.name.setGeometry(QRect(260, 10, 71, 31))
+        self.name.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
+"border: 1px solid rgba(255,255,255,0);\n"
+"border-radius: 7;\n"
+"font: 11pt;")
         self.output_form = QFrame(self.centralwidget)
         self.output_form.setObjectName(u"output_form")
         self.output_form.setGeometry(QRect(10, 460, 581, 61))
@@ -350,7 +335,7 @@ class Ui_MainWindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon7 = QIcon()
-        icon7.addFile(u"icons/bolt.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon7.addFile(u"Files/icons/bolt.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.sendButton.setIcon(icon7)
 
         self.gridLayout.addWidget(self.sendButton, 4, 1, 2, 1)
@@ -392,10 +377,10 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
-"background-color: rgba(255,255,255,80);\n"
+"background-color: rgba(255,60,60,100);\n"
 "}")
         icon8 = QIcon()
-        icon8.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon8.addFile(u"Files/icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.closeButton.setIcon(icon8)
         self.minimizeButton = QPushButton(self.Title)
         self.minimizeButton.setObjectName(u"minimizeButton")
@@ -411,10 +396,10 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
-"background-color: rgba(255,255,255,80);\n"
+"background-color: rgba(60,60,255,100);\n"
 "}")
         icon9 = QIcon()
-        icon9.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon9.addFile(u"Files/icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.minimizeButton.setIcon(icon9)
         self.labeltitle = QLabel(self.Title)
         self.labeltitle.setObjectName(u"labeltitle")
@@ -431,14 +416,14 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"background-color: rgba(30,255,30,80);\n"
+"background-color: rgba(255,255,30,80);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
-"background-color: rgba(255,255,255,80);\n"
+"background-color: rgba(255,255,60,100);\n"
 "}")
         icon10 = QIcon()
-        icon10.addFile(u"icons/restart.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon10.addFile(u"Files/icons/restart.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.rerunButton.setIcon(icon10)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -449,22 +434,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u0426\u0435\u043d\u0442\u0440 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044f \u0441\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u044f\u043c\u0438", None))
-        self.number.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"hr { height: 1px; border-width: 0; }\n"
-"li.unchecked::marker { content: \"\\2610\"; }\n"
-"li.checked::marker { content: \"\\2612\"; }\n"
-"</style></head><body style=\" font-family:'Grammatica'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Gramatica';\"><br /></p></body></html>", None))
-        self.name.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"hr { height: 1px; border-width: 0; }\n"
-"li.unchecked::marker { content: \"\\2610\"; }\n"
-"li.checked::marker { content: \"\\2612\"; }\n"
-"</style></head><body style=\" font-family:'Grammatica'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Gramatica';\"><br /></p></body></html>", None))
         self.add_contact.setText(QCoreApplication.translate("MainWindow", u"\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u043a\u043e\u043d\u0442\u0430\u043a\u0442", None))
         self.display_name.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u0418\u043c\u044f: </span></p></body></html>", None))
         self.display_number.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u0422\u0435\u043b\u0435\u0444\u043e\u043d: +7</span></p></body></html>", None))

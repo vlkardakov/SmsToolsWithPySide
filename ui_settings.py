@@ -304,7 +304,7 @@ class Ui_settingswindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon3 = QIcon()
-        icon3.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon3.addFile(u"Files/icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.closeButton.setIcon(icon3)
         self.minimizeButton = QPushButton(self.Title)
         self.minimizeButton.setObjectName(u"minimizeButton")
@@ -322,11 +322,11 @@ class Ui_settingswindow(object):
 "background-color: rgba(255,255,255,80);\n"
 "}")
         icon4 = QIcon()
-        icon4.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon4.addFile(u"Files/icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.minimizeButton.setIcon(icon4)
         self.labeltitle = QLabel(self.Title)
         self.labeltitle.setObjectName(u"labeltitle")
-        self.labeltitle.setGeometry(QRect(10, 0, 91, 21))
+        self.labeltitle.setGeometry(QRect(0, 0, 101, 21))
         self.labeltitle.setStyleSheet(u"border: None;\n"
 "background-color: rgba(255,255,255,0);")
 
