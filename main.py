@@ -13,8 +13,7 @@ import cv2
 import pandas as pd
 import serial.tools.list_ports as list_ports
 from PySide6.QtCore import Qt, QTimer, QTime
-from PySide6.QtGui import QImage, QPixmap, QPainter, QPainterPath
-from PySide6.QtGui import QTextCursor
+from PySide6.QtGui import QTextCursor, QScreen ,QImage, QPixmap, QPainter, QPainterPath
 from PySide6.QtWidgets import QApplication, QDialog, QMainWindow, QTableWidgetItem, QTableWidget
 from gsmmodem.modem import GsmModem
 from openpyxl import load_workbook, Workbook
@@ -75,7 +74,7 @@ class Settings(QMainWindow):
         self.ui.chooseTheme.setCurrentText(self.settings['theme'])
 
         # Инициализация видео
-        self.capture = cv2.VideoCapture(f'{self.settings["theme"]}.mp4')
+        self.capture = cv2.VideoCapture(f'Files/backgrounds/{self.settings["theme"]}.mp4')
         self.snapshot = QPixmap()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
@@ -232,9 +231,7 @@ class Settings(QMainWindow):
             self.ui.chooseTheme.addItem(name_without_ext, userData=os.path.join(backgrounds_path, video))
     def on_video_changed(self, index):
         self.settings['theme'] = self.ui.chooseTheme.currentText()
-        # Получаем полный путь к файлу из userData
         video_path = self.ui.chooseTheme.itemData(index)
-        # Здесь можно обновить видео
         self.capture = cv2.VideoCapture(video_path)
 
 
@@ -477,6 +474,8 @@ class SmsTools(QMainWindow):
         super(SmsTools, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.center_window()
+
 
         #настройки
         self.settings = self.read_settings()
@@ -526,6 +525,14 @@ class SmsTools(QMainWindow):
         self.ui.search.clicked.connect(self.load_contacts)
         self.ui.settings.clicked.connect(self.openSettings)
 
+    def center_window(self):
+        screen = self.screen().geometry()
+        window = self.geometry()
+        self.move(
+            screen.center().x() - window.width() // 2,
+            screen.center().y() - window.height() // 2
+        )
+
     def rerun(self):
         #настройки
         self.settings = self.read_settings()
@@ -542,7 +549,7 @@ class SmsTools(QMainWindow):
 
     def mousePressEvent(self, event):
         try:
-            if event.button() == Qt.LeftButton and self.childAt(event.pos()) == self.ui.Title:
+            if event.button() == Qt.LeftButton:
                 self.dragPos = event.globalPosition().toPoint()
         except:
             pass
@@ -559,7 +566,7 @@ class SmsTools(QMainWindow):
         number = self.ui.number.toPlainText()
         name = self.ui.name.toPlainText()
 
-        contact = [name, number]
+        contact = [number, name]
         file_path = self.filePaths.contacts
         directory = os.path.dirname(file_path)
         if not os.path.exists(directory):
