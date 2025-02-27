@@ -376,12 +376,19 @@ QComboBox::drop-down {
     background: transparent;
 }
 
+QComboBox::down-arrow {
+    background: transparent;
+    width: 14px;
+    height: 14px;
+}
+
+/* Стиль для выпадающего списка */
 QComboBox QAbstractItemView {
-    background-color: rgba(255,255,255,20);
+    background-color: rgba(255,255,255,40);  /* Полупрозрачный белый фон */
     border: 1px solid rgba(255,255,255,40);
     border-radius: 7px;
     color: white;
-    selection-background-color: rgba(255,255,255,50);
+    selection-background-color: rgba(255,255,255,70);
     selection-color: white;
     outline: none;
 }
@@ -392,7 +399,7 @@ QComboBox QAbstractItemView::item {
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: rgba(255,255,255,50);
+    background-color: rgba(255,255,255,60);
 }</string>
     </property>
    </widget>
@@ -427,7 +434,7 @@ font: 11pt;</string>
    <zorder>chooseTheme</zorder>
    <zorder>charge_warning_display</zorder>
   </widget>
-  <widget class="QFrame" name="gridFrame_2">
+  <widget class="QFrame" name="Title">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -437,8 +444,7 @@ font: 11pt;</string>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgba(255,255,255,20);
-border: 1px solid rgba(255,255,255,40);
+    <string notr="true">background-color: rgba(255,255,255,0);
 border-radius: 7;
 color: white;
 QPushButton {
@@ -464,11 +470,12 @@ background-color: rgba(255,255,255,80);
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
+border: 1px solid rgba(255,255,255,40);
 background-color: rgba(255,255,255,20);
 }
 
 QPushButton:hover {
-background-color: rgba(255,10,10,80);
+background-color: rgba(255,30,30,80);
 }
 
 QPushButton:pressed {
@@ -494,6 +501,7 @@ background-color: rgba(255,255,255,80);
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
+border: 1px solid rgba(255,255,255,40);
 background-color: rgba(255,255,255,20);
 }
 

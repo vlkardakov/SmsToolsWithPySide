@@ -2,7 +2,7 @@ import sys, os, subprocess, shutil
 from datetime import datetime
 from PySide6.QtCore import Qt, QTimer, QTime
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget, QTextBrowser, QTextEdit, \
-    QPushButton, QVBoxLayout, QWidget, QComboBox
+    QPushButton, QVBoxLayout, QWidget, QComboBox, QSlider
 from openpyxl import load_workbook, Workbook
 from ui_settings import Ui_settingswindow
 import cv2
@@ -72,7 +72,12 @@ class Settings(QMainWindow):
         # Запускаем воспроизведение
         self.timer.start(30)
 
+        # задаём слайдер в настройках
+        self.ui.charge_warning.setValue(int(self.settings['charge_warning']))
+        self.ui.charge_warning.valueChanged.connect(self.on_charge_warning_change)
 
+        # задаём отображение значения в тексте
+        self.ui.charge_warning_display.setText(self.settings['charge_warning'])
 
         self.setWindowFlags(Qt.FramelessWindowHint)  # titlebar
 
@@ -91,6 +96,9 @@ class Settings(QMainWindow):
     def updateSpeed(self):
         self.settings['speed'] = self.ui.modemSpeed.text()
 
+    def on_charge_warning_change(self, value):
+        self.ui.charge_warning_display.setText(f"{value}%")
+        self.settings['charge_warning'] = str(value)
     def updateModel(self):
         self.settings['model'] = self.ui.modemName.text()
     def save(self):
@@ -99,13 +107,19 @@ class Settings(QMainWindow):
         self.close()
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.dragPos = event.globalPosition().toPoint()
+        try:
+            if event.button() == Qt.LeftButton and self.childAt(event.pos()) == self.ui.Title:
+                self.dragPos = event.globalPosition().toPoint()
+        except:
+            pass
     def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
-            self.dragPos = event.globalPosition().toPoint()
-            event.accept()
+        try:
+            if event.buttons() == Qt.LeftButton and self.childAt(event.pos()) == self.ui.Title:
+                self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+                self.dragPos = event.globalPosition().toPoint()
+                event.accept()
+        except:
+            pass
 
     def update_frame(self):
         if self.capture.isOpened():

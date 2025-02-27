@@ -145,18 +145,17 @@ background-color: rgba(255,255,255,80);
     </property>
    </widget>
   </widget>
-  <widget class="QFrame" name="gridFrame_2">
+  <widget class="QFrame" name="Title">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>0</x>
      <y>10</y>
-     <width>261</width>
+     <width>271</width>
      <height>21</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgba(255,255,255,20);
-border: 1px solid rgba(255,255,255,40);
+    <string notr="true">background-color: rgba(255,255,255,0);
 border-radius: 7;
 color: white;
 QPushButton {
@@ -182,11 +181,12 @@ background-color: rgba(255,255,255,80);
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
+border: 1px solid rgba(255,255,255,40);
 background-color: rgba(255,255,255,20);
 }
 
 QPushButton:hover {
-background-color: rgba(255,10,10,80);
+background-color: rgba(255,30,30,80);
 }
 
 QPushButton:pressed {
@@ -212,6 +212,7 @@ background-color: rgba(255,255,255,80);
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
+border: 1px solid rgba(255,255,255,40);
 background-color: rgba(255,255,255,20);
 }
 
@@ -236,7 +237,7 @@ background-color: rgba(255,255,255,80);
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>91</width>
+      <width>51</width>
       <height>21</height>
      </rect>
     </property>

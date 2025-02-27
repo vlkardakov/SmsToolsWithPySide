@@ -66,11 +66,10 @@ class Ui_Notification(object):
 
         self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
 
-        self.gridFrame_2 = QFrame(Notification)
-        self.gridFrame_2.setObjectName(u"gridFrame_2")
-        self.gridFrame_2.setGeometry(QRect(10, 10, 181, 21))
-        self.gridFrame_2.setStyleSheet(u"background-color: rgba(255,255,255,20);\n"
-"border: 1px solid rgba(255,255,255,40);\n"
+        self.Title = QFrame(Notification)
+        self.Title.setObjectName(u"Title")
+        self.Title.setGeometry(QRect(10, 10, 181, 21))
+        self.Title.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
 "border-radius: 7;\n"
 "color: white;\n"
 "QPushButton {\n"
@@ -84,15 +83,16 @@ class Ui_Notification(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        self.closeButton_3 = QPushButton(self.gridFrame_2)
-        self.closeButton_3.setObjectName(u"closeButton_3")
-        self.closeButton_3.setGeometry(QRect(150, 0, 30, 21))
-        self.closeButton_3.setStyleSheet(u"QPushButton {\n"
+        self.closeButton = QPushButton(self.Title)
+        self.closeButton.setObjectName(u"closeButton")
+        self.closeButton.setGeometry(QRect(150, 0, 30, 21))
+        self.closeButton.setStyleSheet(u"QPushButton {\n"
+"border: 1px solid rgba(255,255,255,40);\n"
 "background-color: rgba(255,255,255,20);\n"
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"background-color: rgba(255,10,10,80);\n"
+"background-color: rgba(255,30,30,80);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
@@ -100,11 +100,12 @@ class Ui_Notification(object):
 "}")
         icon = QIcon()
         icon.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.closeButton_3.setIcon(icon)
-        self.minimizeButton = QPushButton(self.gridFrame_2)
+        self.closeButton.setIcon(icon)
+        self.minimizeButton = QPushButton(self.Title)
         self.minimizeButton.setObjectName(u"minimizeButton")
         self.minimizeButton.setGeometry(QRect(110, 0, 30, 21))
         self.minimizeButton.setStyleSheet(u"QPushButton {\n"
+"border: 1px solid rgba(255,255,255,40);\n"
 "background-color: rgba(255,255,255,20);\n"
 "}\n"
 "\n"
@@ -118,9 +119,9 @@ class Ui_Notification(object):
         icon1 = QIcon()
         icon1.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.minimizeButton.setIcon(icon1)
-        self.labeltitle = QLabel(self.gridFrame_2)
+        self.labeltitle = QLabel(self.Title)
         self.labeltitle.setObjectName(u"labeltitle")
-        self.labeltitle.setGeometry(QRect(10, 0, 101, 21))
+        self.labeltitle.setGeometry(QRect(0, 0, 111, 21))
         self.labeltitle.setStyleSheet(u"border: None;\n"
 "background-color: rgba(255,255,255,0);")
 
@@ -133,7 +134,7 @@ class Ui_Notification(object):
         Notification.setWindowTitle(QCoreApplication.translate("Notification", u"\u0423\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u0435", None))
         self.text.setText(QCoreApplication.translate("Notification", u"<html><head/><body><p><br/></p><p><br/></p></body></html>", None))
         self.but2.setText(QCoreApplication.translate("Notification", u"\u041e\u041a", None))
-        self.closeButton_3.setText("")
+        self.closeButton.setText("")
         self.minimizeButton.setText("")
         self.labeltitle.setText(QCoreApplication.translate("Notification", u"<html><head/><body><p><span style=\" font-size:11pt;\">\u0423\u0432\u0435\u0434\u043e\u043c\u043b\u0435\u043d\u0438\u0435</span></p></body></html>", None))
     # retranslateUi

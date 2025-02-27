@@ -1,20 +1,475 @@
-import os, psutil, sys, subprocess, serial, time, warnings
-import pandas as pd
-from Continue import Continue
-from PySide6.QtGui import QTextCursor
-from types import SimpleNamespace
-from PySide6.QtCore import Qt, QTimer, QTime
-import serial.tools.list_ports as list_ports
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QTableWidget
-from openpyxl import load_workbook, Workbook
-from gsmmodem.modem import GsmModem
-from openpyxl.styles import Alignment, PatternFill
+import os
+import psutil
+import serial
+import shutil
+import subprocess
+import sys
+import time
+import warnings
 from datetime import datetime, timedelta
-import settings
-from ui_main import Ui_MainWindow
-from Notification import Notification
+from types import SimpleNamespace
+
 import cv2
+import pandas as pd
+import serial.tools.list_ports as list_ports
+from PySide6.QtCore import Qt, QTimer, QTime
 from PySide6.QtGui import QImage, QPixmap, QPainter, QPainterPath
+from PySide6.QtGui import QTextCursor
+from PySide6.QtWidgets import QApplication, QDialog, QMainWindow, QTableWidgetItem, QTableWidget
+from gsmmodem.modem import GsmModem
+from openpyxl import load_workbook, Workbook
+from openpyxl.styles import PatternFill
+
+from ui_continue import Ui_Form
+from ui_main import Ui_MainWindow
+from ui_notification import Ui_Notification
+from ui_settings import Ui_settingswindow
+
+
+def read_settings():
+    settings_file = "Files/settings.txt"
+    if not os.path.exists(settings_file):
+        print(f"Файл {settings_file} не существует.")
+        exit()
+    settings = {}
+    with open(settings_file, 'r') as file:
+        for line_num, line in enumerate(file, start=1):
+            line = line.strip()
+            if not line or '=' not in line:
+                continue
+            try:
+                name, value = line.split('=', 1)
+                settings[name.strip()] = value.strip()
+            except ValueError as e:
+                print(f"Ошибка в строке {line_num}: '{line}', ошибка: {e}")
+                continue
+    return settings
+
+def save_settings(settings):
+    settings_file = "Files/settings.txt"
+    try:
+        with open(settings_file, 'w') as file:
+            for name, value in settings.items():
+                file.write(f"{name}={value}\n")
+        print("Настройки успешно сохранены")
+    except Exception as e:
+        print(f"Ошибка при сохранении настроек: {e}")
+
+class Settings(QMainWindow):
+    def __init__(self):
+        super(Settings, self).__init__()
+        self.ui = Ui_settingswindow()
+        self.ui.setupUi(self)
+
+        #настройки
+        self.settings = read_settings()
+        self.populate_video_combo()
+
+        #значения
+        self.ui.modemName.setText(self.settings['model'])
+        self.ui.modemName.setCursorPosition(0)
+        self.ui.modemName.clearFocus()
+        self.ui.modemName.clearFocus()
+
+        self.ui.modemSpeed.setText(self.settings['speed'])
+        self.ui.chooseTheme.setCurrentText(self.settings['theme'])
+
+        # Инициализация видео
+        self.capture = cv2.VideoCapture(f'{self.settings["theme"]}.mp4')
+        self.snapshot = QPixmap()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        self.start_time = QTime.currentTime()
+        # Делаем фон прозрачным
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        # Запускаем воспроизведение
+        self.timer.start(30)
+
+        # задаём слайдер в настройках
+        self.ui.charge_warning.setValue(int(self.settings['charge_warning']))
+        self.ui.charge_warning.valueChanged.connect(self.on_charge_warning_change)
+
+        # задаём отображение значения в тексте
+        self.ui.charge_warning_display.setText(self.settings['charge_warning'])
+
+        self.setWindowFlags(Qt.FramelessWindowHint)  # titlebar
+
+        # Привязка кнопок
+        self.ui.archivateData.clicked.connect(self.archivate_logs)
+        self.ui.cancelSettings.clicked.connect(self.cancelSettings)
+        self.ui.closeButton.clicked.connect(self.close)
+        self.ui.minimizeButton.clicked.connect(self.showMinimized)
+        self.ui.saveSettings.clicked.connect(self.save)
+
+        # Привязка сигнала выбора темы
+        self.ui.chooseTheme.currentIndexChanged.connect(self.on_video_changed)
+        self.ui.modemSpeed.textChanged.connect(self.updateSpeed)
+        self.ui.modemName.textChanged.connect(self.updateModel)
+
+    def updateSpeed(self):
+        self.settings['speed'] = self.ui.modemSpeed.text()
+    def on_charge_warning_change(self, value):
+        self.ui.charge_warning_display.setText(f"{value}%")
+        self.settings['charge_warning'] = str(value)
+    def updateModel(self):
+        self.settings['model'] = self.ui.modemName.text()
+    def save(self):
+        save_settings(self.settings)
+
+        self.close()
+    def mousePressEvent(self, event):
+        try:
+            if event.button() == Qt.LeftButton and self.childAt(event.pos()) == self.ui.Title:
+                self.dragPos = event.globalPosition().toPoint()
+        except:
+            pass
+    def mouseMoveEvent(self, event):
+        try:
+            if event.buttons() == Qt.LeftButton and self.childAt(event.pos()) == self.ui.Title:
+                self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+                self.dragPos = event.globalPosition().toPoint()
+                event.accept()
+        except:
+            pass
+    def update_frame(self):
+        if self.capture.isOpened():
+            ret, frame = self.capture.read()
+            if ret:
+                # Если достигнут конец видео, начинаем сначала
+                if self.capture.get(cv2.CAP_PROP_POS_FRAMES) == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
+                    self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+                # Конвертируем BGR в RGB
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = frame.shape
+                bytes_per_line = ch * w
+
+                # Создаем QImage из кадра
+                image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                self.snapshot = QPixmap.fromImage(image)
+                self.update()  # Вызываем перерисовку
+    def paintEvent(self, event):
+        if not self.snapshot.isNull():
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing)
+
+            path = QPainterPath()
+            path.addRoundedRect(0, 0, self.width(), self.height(), 10, 10)
+
+            painter.setClipPath(path)
+
+            painter.drawPixmap(0, 0, self.snapshot.scaled(
+                self.size(),
+                Qt.KeepAspectRatioByExpanding,
+                Qt.SmoothTransformation
+            ))
+        super().paintEvent(event)
+    def closeEvent(self, event):
+        self.capture.release()
+        super().closeEvent(event)
+    def keyPressEvent(self, event):
+        pass
+    def archivate_logs(self):
+        log_file = "Files/sms_log.xlsx"
+        analysis_file = "Files/Analysis.txt"
+        archive_dir = "Files/Archive"
+        if not os.path.exists(archive_dir):
+            os.makedirs(archive_dir)
+
+        current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        archived_log_file = f"{archive_dir}/sms_log_{current_datetime}.xlsx"
+        archived_analysis_file = f"{archive_dir}/Analysis_{current_datetime}.txt"
+
+        try:
+            shutil.copy2(log_file, archived_log_file)
+            print(f"Лог успешно архивирован в {archived_log_file}")
+
+            wb = load_workbook("Files/sms_log.xlsx", data_only=True)
+            ws = wb.active
+            # Удаляем все строки, кроме первой
+            ws.delete_rows(2, ws.max_row)
+
+            # Устанавливаем высоту первой строки по умолчанию
+            ws.row_dimensions[1].height = 13.7
+
+            # Удаляем все настройки высоты строк, чтобы они стали по умолчанию
+            for row_dim in ws.row_dimensions:
+                if row_dim != 1:
+                    ws.row_dimensions[row_dim].height = None
+
+            wb.save(log_file)
+            print("Лог успешно очищен, кроме строки заголовков")
+
+            # Архивирование файла analysis.txt
+            shutil.copy2(analysis_file, archived_analysis_file)
+            print(f"Файл analysis.txt успешно архивирован в {archived_analysis_file}")
+
+            # Очистка файла analysis.txt
+            with open(analysis_file, 'w') as f:
+                f.write('')
+
+            print("Файл analysis.txt успешно очищен")
+
+        except Exception as e:
+            print(f"Ошибка при очистке логов: {e}")
+    def cancelSettings(self):
+        self.close()
+    def populate_video_combo(self):
+        # Путь к папке с фонами
+        backgrounds_path = "Files/backgrounds"
+
+        # Создаем папку если её нет
+        if not os.path.exists(backgrounds_path):
+            os.makedirs(backgrounds_path)
+        print("получаем")
+        # Получаем список всех .mp4 файлов
+        video_files = [f for f in os.listdir(backgrounds_path) if f.endswith('.mp4')]
+
+        # Добавляем имена файлов без расширения в комбобокс
+        for video in video_files:
+            name_without_ext = os.path.splitext(video)[0]
+            # Сохраняем полный путь в userData для последующего использования
+            self.ui.chooseTheme.addItem(name_without_ext, userData=os.path.join(backgrounds_path, video))
+    def on_video_changed(self, index):
+        self.settings['theme'] = self.ui.chooseTheme.currentText()
+        # Получаем полный путь к файлу из userData
+        video_path = self.ui.chooseTheme.itemData(index)
+        # Здесь можно обновить видео
+        self.capture = cv2.VideoCapture(video_path)
+
+
+class Continue(QDialog):
+    def __init__(self, text, but1text, but2text):
+        super(Continue, self).__init__()
+        self.ui = Ui_Form()
+        self.ui.setupUi(self)
+
+        #настройки
+        self.settings = self.read_settings()
+        self.settings['port'] = None  # Настроить
+        self.canModem = False
+        self.incomingCount = 0
+
+
+        # инициализация видева
+        self.capture = cv2.VideoCapture(f"Files/backgrounds/{self.settings['theme']}.mp4")
+        self.snapshot = QPixmap()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        self.start_time = QTime.currentTime()
+
+        # запуск
+        self.timer.start(30)
+
+        self.setWindowFlags(Qt.FramelessWindowHint)  # titlebar
+        self.setAttribute(Qt.WA_TranslucentBackground)  # пусть фон будет прозрачным чтобы видет видева
+
+
+
+        self.choice = None  #выбор пользователя
+
+        self.ui.but1.setText(but1text)
+        self.ui.but2.setText(but2text)
+        self.ui.text.setText(text)
+
+        self.ui.closeButton.clicked.connect(self.close)
+        self.ui.minimizeButton.clicked.connect(self.showMinimized)
+
+
+        self.ui.but1.clicked.connect(self.but1)
+        self.ui.but2.clicked.connect(self.but2)
+
+    def but1(self):
+        self.choice = False  # Запоминаем выбор
+        self.accept()#0
+
+    def but2(self):
+        self.choice = True  # Запоминаем выбор
+        self.accept()#1
+
+    def get_choice(self):
+        if self.exec() == QDialog.Accepted:
+            return self.choice
+        return None
+    def read_settings(self):
+        settings_file = "Files/settings.txt"
+        if not os.path.exists(settings_file):
+            print(f"Файл {settings_file} не существует.")
+            exit()
+        settings = {}
+        with open(settings_file, 'r') as file:
+            for line_num, line in enumerate(file, start=1):
+                line = line.strip()
+                if not line or '=' not in line:
+                    continue
+                try:
+                    name, value = line.split('=', 1)
+                    settings[name.strip()] = value.strip()
+                except ValueError as e:
+                    print(f"Ошибка в строке {line_num}: '{line}', ошибка: {e}")
+                    continue
+        return settings
+
+    def mousePressEvent(self, event):
+        try:
+            if event.button() == Qt.LeftButton:
+                self.dragPos = event.globalPosition().toPoint()
+        except:
+            pass
+
+    def mouseMoveEvent(self, event):
+        try:
+            if event.buttons() == Qt.LeftButton:
+                self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+                self.dragPos = event.globalPosition().toPoint()
+                event.accept()
+        except:
+            pass
+    def update_frame(self):
+        if self.capture.isOpened():
+            ret, frame = self.capture.read()
+            if ret:
+                # повтор
+                if self.capture.get(cv2.CAP_PROP_POS_FRAMES) == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
+                    self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = frame.shape
+                bytes_per_line = ch * w
+
+                image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                self.snapshot = QPixmap.fromImage(image)
+                self.update()
+    def paintEvent(self, event):
+        if not self.snapshot.isNull():
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing)
+
+            path = QPainterPath()
+            path.addRoundedRect(0, 0, self.width(), self.height(), 10, 10)
+
+            painter.setClipPath(path)
+
+            painter.drawPixmap(0, 0, self.snapshot.scaled(
+                self.size(),
+                Qt.KeepAspectRatioByExpanding,
+                Qt.SmoothTransformation
+            ))
+        super().paintEvent(event)
+
+    def closeEvent(self, event):
+        self.capture.release()
+        super().closeEvent(event)
+
+
+class Notification(QDialog):
+    def __init__(self, text):
+        super(Notification, self).__init__()
+        self.ui = Ui_Notification()
+        self.ui.setupUi(self)
+
+        self.ui.but2.setText("OK")
+        self.ui.text.setText(text)
+        #настройки
+        self.settings = self.read_settings()
+        self.settings['port'] = None  # Настроить
+        self.canModem = False
+        self.incomingCount = 0
+        # инициализация видева
+        self.capture = cv2.VideoCapture(f"Files/backgrounds/{self.settings['theme']}.mp4")
+        self.snapshot = QPixmap()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        self.start_time = QTime.currentTime()
+
+
+        self.ui.closeButton.clicked.connect(self.close)
+        self.ui.minimizeButton.clicked.connect(self.showMinimized)
+
+        # запуск
+        self.timer.start(30)
+
+        self.setWindowFlags(Qt.FramelessWindowHint)  # titlebar
+        self.setAttribute(Qt.WA_TranslucentBackground)  # пусть фон будет прозрачным чтобы видет видева
+
+        self.ui.but2.clicked.connect(self.but2)
+
+    def but2(self):
+        self.close()
+    def run(self):
+        if self.exec() == QDialog.Accepted:
+            return self.choice
+        return None
+    def read_settings(self):
+        settings_file = "Files/settings.txt"
+        if not os.path.exists(settings_file):
+            print(f"Файл {settings_file} не существует.")
+            exit()
+        settings = {}
+        with open(settings_file, 'r') as file:
+            for line_num, line in enumerate(file, start=1):
+                line = line.strip()
+                if not line or '=' not in line:
+                    continue
+                try:
+                    name, value = line.split('=', 1)
+                    settings[name.strip()] = value.strip()
+                except ValueError as e:
+                    print(f"Ошибка в строке {line_num}: '{line}', ошибка: {e}")
+                    continue
+        return settings
+
+    def update_frame(self):
+        if self.capture.isOpened():
+            ret, frame = self.capture.read()
+            if ret:
+                # повтор
+                if self.capture.get(cv2.CAP_PROP_POS_FRAMES) == self.capture.get(cv2.CAP_PROP_FRAME_COUNT):
+                    self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = frame.shape
+                bytes_per_line = ch * w
+
+                image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                self.snapshot = QPixmap.fromImage(image)
+                self.update()
+
+    def mousePressEvent(self, event):
+        try:
+            if event.button() == Qt.LeftButton:
+                self.dragPos = event.globalPosition().toPoint()
+        except:
+            pass
+
+    def mouseMoveEvent(self, event):
+        try:
+            if event.buttons() == Qt.LeftButton:
+                self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+                self.dragPos = event.globalPosition().toPoint()
+                event.accept()
+        except:
+            pass
+    def paintEvent(self, event):
+        if not self.snapshot.isNull():
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing)
+
+            path = QPainterPath()
+            path.addRoundedRect(0, 0, self.width(), self.height(), 10, 10)
+
+            painter.setClipPath(path)
+
+            painter.drawPixmap(0, 0, self.snapshot.scaled(
+                self.size(),
+                Qt.KeepAspectRatioByExpanding,
+                Qt.SmoothTransformation
+            ))
+        super().paintEvent(event)
+
+    def closeEvent(self, event):
+        self.capture.release()
+        super().closeEvent(event)
 
 
 class SmsTools(QMainWindow):
@@ -22,8 +477,6 @@ class SmsTools(QMainWindow):
         super(SmsTools, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
-
 
         #настройки
         self.settings = self.read_settings()
@@ -50,6 +503,8 @@ class SmsTools(QMainWindow):
         """)
 
 
+
+
         self.files = SimpleNamespace()
         self.filePaths = SimpleNamespace()
         self.contacts = None
@@ -59,6 +514,7 @@ class SmsTools(QMainWindow):
 
         self.ui.closeButton.clicked.connect(self.close)
         self.ui.minimizeButton.clicked.connect(self.showMinimized)
+        self.ui.rerunButton.clicked.connect(self.rerun)
 
         self.ui.sendButton.clicked.connect(self.send)
         self.ui.restart.clicked.connect(self.restart_modem)
@@ -70,16 +526,34 @@ class SmsTools(QMainWindow):
         self.ui.search.clicked.connect(self.load_contacts)
         self.ui.settings.clicked.connect(self.openSettings)
 
+    def rerun(self):
+        #настройки
+        self.settings = self.read_settings()
+
+        # инициализация видева
+        self.capture = cv2.VideoCapture(f"Files/backgrounds/{self.settings['theme']}.mp4")
+        self.snapshot = QPixmap()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        self.start_time = QTime.currentTime()
+
+        # запуск
+        self.timer.start(30)
+
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.dragPos = event.globalPosition().toPoint()
-
+        try:
+            if event.button() == Qt.LeftButton and self.childAt(event.pos()) == self.ui.Title:
+                self.dragPos = event.globalPosition().toPoint()
+        except:
+            pass
     def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
-            self.dragPos = event.globalPosition().toPoint()
-            event.accept()
-
+        try:
+            if event.buttons() == Qt.LeftButton:
+                self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+                self.dragPos = event.globalPosition().toPoint()
+                event.accept()
+        except:
+            pass
     def add_contacts(self):
         print("Начинаю добавление...")
         number = self.ui.number.toPlainText()
@@ -108,11 +582,9 @@ class SmsTools(QMainWindow):
         self.load_contacts()
         print(f"Контакты успешно добавлены в {file_path}")
         return None
-
     def incomeCountHandler(self):
         self.incomingCount += 1
         self.ui.get_messages.setText(f"Получить сообщения ({self.incomingCount})")
-
     def setup_modem(self):
         #настройка файлов
 
@@ -129,21 +601,21 @@ class SmsTools(QMainWindow):
             print(self.send_at_command('AT+CMGF=1'))  # Задание текстового формата
             self.send_at_command('AT+CPMS="ME","ME","ME"')  # переключение на внутреннюю память
             # self.conprint(self.modem.read())
-
     # функция для объединения сообщений
     def combine_long_messages(self, messages):
         combined_messages = []
         for message in messages:
             combined_messages.append(message)
         return combined_messages
-
     def send_at_command(self, command, timeout=0.1):
+        if not self.canModem:
+            Notification("Модем не подключен.").run()
+            return
         with serial.Serial(self.settings['port'], self.settings['speed'], timeout=timeout) as ser:
             ser.write((command + '\r\n').encode())
             time.sleep(timeout)
             response = ser.read_all().decode()
             return response
-
     def find_modem(self):
         # Находим все доступные порты
         available_ports = list_ports.comports()
@@ -166,13 +638,13 @@ class SmsTools(QMainWindow):
                         ser.close()
 
                         if response:
-                            # сохраняем первый найденный порт и завершаем выполнение
+                            # сохраняем первый найденный порт и завершаем
                             self.settings['port'] = port
+                            self.conprint("Модем подключен.")
                             self.canModem = True
                             break
                     except serial.SerialException:
                         pass
-
     def num_to_name(self, num):
         # преобразует номер в имя
         wb = self.files.contacts
@@ -187,11 +659,9 @@ class SmsTools(QMainWindow):
                 if phone_number == num:
                     return contact_name
         return num
-
     def get_current_datetime(self):
         now = datetime.now()
         return now.strftime('%d/%m/%Y'), now.strftime('%H:%M:%S')
-
     # Функция для парсинга сообщений
     def parse_sms_response(self, response):
         messages = []
@@ -248,7 +718,6 @@ class SmsTools(QMainWindow):
                 })
             i += 1
         return messages
-
     def get_all_contacts(self):
         try:
             df = pd.read_excel(self.filePaths.contacts)
@@ -269,8 +738,10 @@ class SmsTools(QMainWindow):
             phone_number = str(row['Номер телефона']).replace(' ', '').replace('-', '')
             contacts[phone_number] = row['Имя маячка']
         return contacts
-
     def read_sms_and_save(self):
+        if not self.canModem:
+            Notification("Модем не подключен.").run()
+            return
         # print("Проверяем...")
         response = self.send_at_command('AT+CMGL="ALL"')
 
@@ -285,10 +756,7 @@ class SmsTools(QMainWindow):
             self.conprint(f"Файл контактов не найден.")
             return
         # self.conprint("Файл контактов найден")
-        # Вывод содержимого
         if combined_messages:
-            # print()
-            # print("Найдены SMS сообщения:", end = '')
             latest_name = "test4d!"
             log = ""
             for sms in combined_messages:
@@ -317,19 +785,18 @@ class SmsTools(QMainWindow):
             self.incomingCount = 0
             self.ui.get_messages.setText("Получить сообщения")
             return ""
-
     def append_to_excel(self, sms_messages):
-        if not sms_messages:  # Если нет новых сообщений, не записываем в таблицу
+        if not sms_messages:
             return
         wb = self.files.smsLog
         ws = wb.active
 
         settings = self.settings
-        sleep_time = int(settings.get('sleep_time', 0))  # Значение sleep_time из файла настроек
+        sleep_time = int(settings.get('sleep_time', 0))
 
         for sms in sms_messages:
             sender_number = sms["sender_number"].replace(' ', '').replace('-',
-                                                                          '')  # Убираем только пробелы и дефисы, сохраняем +
+                                                                          '')
             contact_name = self.num_to_name(sms['sender_number'])
             message = sms["message"] if sms["message"] else "Без текста"
             date_received = sms["date"]
@@ -356,7 +823,6 @@ class SmsTools(QMainWindow):
 
         wb.save(self.filePaths.smsLog)
         self.files.smsLog = wb
-
     def restart_modem(self):
         if Continue("Перезагрузить модем? \nЗаймёт 50 секунд.", "Нет", "Да").get_choice():
             res = self.send_at_command('AT+CFUN=1,1')
@@ -365,14 +831,10 @@ class SmsTools(QMainWindow):
             self.setup_modem()
             Notification("Модем перезагружен").run()
             return True if "OK" in res else False
-
     def kill_connect_manager(self):
         try:
-            # Ищем процесс Connect Manager
             for proc in psutil.process_iter(['name']):
                 if proc.info['name'] and 'Connect Manager.exe' in proc.info['name']:
-                    # print(f"Найден процесс Connect Manager (PID: {proc.pid})")
-                    # Принудительно завершаем процесс
                     proc.kill()
                     # print("Процесс успешно завершен")
                     return True
@@ -383,18 +845,15 @@ class SmsTools(QMainWindow):
         except Exception as e:
             print(f"Произошла ошибка: {e}")
             return False
-
     def menu_analysis(self):
         if Continue("Анализировать данные?", "Нет", "Да").get_choice():
             print("Анализирую...")
             self.analyze_smsLog()
             Notification("Анализ завершён.").run()
             print("Конец анализа.")
-
     def openSettings(self):  # Открывает настройки
-        self.settingsWindow = settings.Settings()
+        self.settingsWindow = Settings()
         self.settingsWindow.show()
-
     def delete_contact(self, nums):
         ii = 0
         try:
@@ -418,7 +877,6 @@ class SmsTools(QMainWindow):
 
         except Exception as e:
             return False, f"Ошибка при удалении контакта: {str(e)}"
-
     def check_sms_symbols(self, message):
         # Проверяет текст на наличие недопустимых символов для текстового режима
         allowed_chars = set(
@@ -431,8 +889,10 @@ class SmsTools(QMainWindow):
             if char not in allowed_chars:
                 return False
         return True
-
     def send(self):
+        if not self.canModem:
+            Notification("Модем не подключен.").run()
+            return
         modem = GsmModem(self.settings['port'], self.settings['speed'])
         modem.connect("")
         message = self.ui.message.toPlainText()
@@ -462,7 +922,6 @@ class SmsTools(QMainWindow):
         modem.connect("")
         modem.smsTextMode = True
         modem.close()
-
     def read_settings(self):
         settings_file = "Files/settings.txt"
         if not os.path.exists(settings_file):
@@ -481,7 +940,6 @@ class SmsTools(QMainWindow):
                     print(f"Ошибка в строке {line_num}: '{line}', ошибка: {e}")
                     continue
         return settings
-
     def get_selected_numbers(self):
         selected_rows = set()
         for index in self.ui.contacts.selectedIndexes():
@@ -495,7 +953,6 @@ class SmsTools(QMainWindow):
 
         # self.conprint(f"Выделено {(first_column_data)}")  # Выводим в консоль (можно использовать иначе)
         return first_column_data
-
     def open_files_folder(self):
         # Открывает папку 'Files' в текущем каталоге в проводнике.
 
@@ -524,7 +981,6 @@ class SmsTools(QMainWindow):
             print('', end='')
         except Exception as e:
             print('', end='')
-
     def load_smsLog(self, filename):
         try:
             df = pd.read_excel(filename)
@@ -535,7 +991,6 @@ class SmsTools(QMainWindow):
             print(f"Ошибка при чтении файла SMS логов: {e}")
             return pd.DataFrame()
         return df
-
     def analyze_smsLog(self):
         smsLog = self.load_smsLog(self.filePaths.smsLog)
 
@@ -602,7 +1057,6 @@ class SmsTools(QMainWindow):
                 row[5].fill = PatternFill(start_color='FFFFFF', end_color='FFFFFF', fill_type='solid')
 
         wb.save(self.filePaths.smsLog)
-
     def keyPressEvent(self, event):
         # чтобы нажать esq и например отменить выделение или нажать enter и отправить сообщение (потом)
         if self.ui.contacts.hasFocus():
@@ -617,7 +1071,6 @@ class SmsTools(QMainWindow):
                     self.load_contacts()
             else:
                 print(event)
-
     def search_contacts(self, file_path, search_terms):
         wb = load_workbook(file_path)
         ws = wb.active
@@ -650,7 +1103,6 @@ class SmsTools(QMainWindow):
             return []
 
         return contacts_found
-
     def load_contacts(self, search_terms=None):
         file_path = "Files/contacts.xlsx"
         if not search_terms:
@@ -659,7 +1111,6 @@ class SmsTools(QMainWindow):
 
         self.populate_table(contacts)
         return contacts
-
     def edit_contacts(self):
         if Continue(f"Сохранить контакты?", "Нет", "Да").get_choice():
             edited_contacts = self.get_displayed_contacts()
@@ -677,7 +1128,6 @@ class SmsTools(QMainWindow):
 
             self.rewrite_contacts(all_contacts)
             # self.load_contacts()
-
     def rewrite_contacts(self, contacts):
         file_path = "Files/contacts.xlsx"
         wb = Workbook()
@@ -689,7 +1139,6 @@ class SmsTools(QMainWindow):
             ws.append([contact["num"].replace("+7", ""), contact["name"]])
 
         wb.save(file_path)
-
     def get_displayed_contacts(self):
         contacts = []
         for row in range(self.ui.contacts.rowCount()):
@@ -700,14 +1149,19 @@ class SmsTools(QMainWindow):
                 contacts.append({"num": num_item.text(), "name": name_item.text()})
 
         return contacts
-
     def populate_table(self, contacts):
         self.ui.contacts.setRowCount(len(contacts))
         self.ui.contacts.setColumnCount(2)
         self.ui.contacts.setHorizontalHeaderLabels(["Номер", "Имя"])
 
         self.ui.contacts.setColumnWidth(0, 90)  # Номер телефона
-        self.ui.contacts.setColumnWidth(1, 99)  # Имя
+        if len(contacts) <= 7:
+            self.ui.contacts.setColumnWidth(1, 99)  # больше
+        else:
+            self.ui.contacts.setColumnWidth(1, 88)  # меньше
+        self.ui.contacts.setShowGrid(False)
+
+
         self.ui.contacts.verticalHeader().setDefaultSectionSize(30)  # Высота строк
 
         self.ui.contacts.setSelectionBehavior(QTableWidget.SelectRows)
@@ -723,12 +1177,10 @@ class SmsTools(QMainWindow):
 
             name_item = QTableWidgetItem(contact["name"])
             self.ui.contacts.setItem(row, 1, name_item)
-
     def conprint(self, text):
         self.ui.console.setText(f"{self.ui.console.toPlainText()}\n{text}")
         self.ui.console.moveCursor(QTextCursor.MoveOperation.End)
         self.ui.console.ensureCursorVisible()  # прокрутка
-
     def update_frame(self):
         if self.capture.isOpened():
             ret, frame = self.capture.read()
@@ -744,7 +1196,6 @@ class SmsTools(QMainWindow):
                 image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
                 self.snapshot = QPixmap.fromImage(image)
                 self.update()
-
     def paintEvent(self, event):
         if not self.snapshot.isNull():
             painter = QPainter(self)
@@ -761,11 +1212,9 @@ class SmsTools(QMainWindow):
                 Qt.SmoothTransformation
             ))
         super().paintEvent(event)
-
     def closeEvent(self, event):
         self.capture.release()
         super().closeEvent(event)
-
 
 if __name__ == "__main__":
     # print(edit_contacts())

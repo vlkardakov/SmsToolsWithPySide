@@ -71,11 +71,10 @@ class Ui_Form(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        self.gridFrame_2 = QFrame(Form)
-        self.gridFrame_2.setObjectName(u"gridFrame_2")
-        self.gridFrame_2.setGeometry(QRect(10, 10, 261, 21))
-        self.gridFrame_2.setStyleSheet(u"background-color: rgba(255,255,255,20);\n"
-"border: 1px solid rgba(255,255,255,40);\n"
+        self.Title = QFrame(Form)
+        self.Title.setObjectName(u"Title")
+        self.Title.setGeometry(QRect(0, 10, 271, 21))
+        self.Title.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
 "border-radius: 7;\n"
 "color: white;\n"
 "QPushButton {\n"
@@ -89,15 +88,16 @@ class Ui_Form(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        self.closeButton = QPushButton(self.gridFrame_2)
+        self.closeButton = QPushButton(self.Title)
         self.closeButton.setObjectName(u"closeButton")
         self.closeButton.setGeometry(QRect(230, 0, 30, 21))
         self.closeButton.setStyleSheet(u"QPushButton {\n"
+"border: 1px solid rgba(255,255,255,40);\n"
 "background-color: rgba(255,255,255,20);\n"
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"background-color: rgba(255,10,10,80);\n"
+"background-color: rgba(255,30,30,80);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
@@ -106,10 +106,11 @@ class Ui_Form(object):
         icon = QIcon()
         icon.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.closeButton.setIcon(icon)
-        self.minimizeButton = QPushButton(self.gridFrame_2)
+        self.minimizeButton = QPushButton(self.Title)
         self.minimizeButton.setObjectName(u"minimizeButton")
         self.minimizeButton.setGeometry(QRect(190, 0, 30, 21))
         self.minimizeButton.setStyleSheet(u"QPushButton {\n"
+"border: 1px solid rgba(255,255,255,40);\n"
 "background-color: rgba(255,255,255,20);\n"
 "}\n"
 "\n"
@@ -123,9 +124,9 @@ class Ui_Form(object):
         icon1 = QIcon()
         icon1.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.minimizeButton.setIcon(icon1)
-        self.labeltitle = QLabel(self.gridFrame_2)
+        self.labeltitle = QLabel(self.Title)
         self.labeltitle.setObjectName(u"labeltitle")
-        self.labeltitle.setGeometry(QRect(10, 0, 91, 21))
+        self.labeltitle.setGeometry(QRect(10, 0, 51, 21))
         self.labeltitle.setStyleSheet(u"border: None;\n"
 "background-color: rgba(255,255,255,0);")
 

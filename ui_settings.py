@@ -227,12 +227,20 @@ class Ui_settingswindow(object):
 "    background: transparent;\n"
 "}\n"
 "\n"
+"QComboBox::down-arrow {\n"
+"    background: transparent;\n"
+"    width: 14px;\n"
+"    height: 14px;\n"
+"}\n"
+"\n"
+"/* \u0421\u0442\u0438\u043b\u044c \u0434\u043b\u044f \u0432\u044b\u043f\u0430\u0434\u0430\u044e\u0449\u0435\u0433\u043e \u0441\u043f\u0438\u0441\u043a\u0430 */\n"
 "QComboBox QAbstractItemView {\n"
-"    background-color: rgba(255,255,255,20);\n"
+"    background-color: rgba(255,255,255,40);  /* \u041f\u043e\u043b\u0443\u043f\u0440\u043e\u0437\u0440\u0430\u0447\u043d\u044b\u0439 \u0431\u0435\u043b\u044b\u0439 \u0444\u043e\u043d */\n"
 "    border: 1px solid rgba(255,255,255,40);\n"
-"    border-radius: 7px;\n"
+"  "
+                        "  border-radius: 7px;\n"
 "    color: white;\n"
-"    selection-background-color: rgba(255,255,255,50);\n"
+"    selection-background-color: rgba(255,255,255,70);\n"
 "    selection-color: white;\n"
 "    outline: none;\n"
 "}\n"
@@ -243,7 +251,7 @@ class Ui_settingswindow(object):
 "}\n"
 "\n"
 "QComboBox QAbstractItemView::item:hover {\n"
-"    background-color: rgba(255,255,255,50);\n"
+"    background-color: rgba(255,255,255,60);\n"
 "}")
         self.charge_warning_display = QLabel(self.gridFrame)
         self.charge_warning_display.setObjectName(u"charge_warning_display")
@@ -263,11 +271,10 @@ class Ui_settingswindow(object):
         self.cancelSettings.raise_()
         self.chooseTheme.raise_()
         self.charge_warning_display.raise_()
-        self.gridFrame_2 = QFrame(settingswindow)
-        self.gridFrame_2.setObjectName(u"gridFrame_2")
-        self.gridFrame_2.setGeometry(QRect(10, 10, 301, 21))
-        self.gridFrame_2.setStyleSheet(u"background-color: rgba(255,255,255,20);\n"
-"border: 1px solid rgba(255,255,255,40);\n"
+        self.Title = QFrame(settingswindow)
+        self.Title.setObjectName(u"Title")
+        self.Title.setGeometry(QRect(10, 10, 301, 21))
+        self.Title.setStyleSheet(u"background-color: rgba(255,255,255,0);\n"
 "border-radius: 7;\n"
 "color: white;\n"
 "QPushButton {\n"
@@ -281,15 +288,16 @@ class Ui_settingswindow(object):
 "QPushButton:pressed {\n"
 "background-color: rgba(255,255,255,80);\n"
 "}")
-        self.closeButton = QPushButton(self.gridFrame_2)
+        self.closeButton = QPushButton(self.Title)
         self.closeButton.setObjectName(u"closeButton")
         self.closeButton.setGeometry(QRect(270, 0, 30, 21))
         self.closeButton.setStyleSheet(u"QPushButton {\n"
+"border: 1px solid rgba(255,255,255,40);\n"
 "background-color: rgba(255,255,255,20);\n"
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"background-color: rgba(255,10,10,80);\n"
+"background-color: rgba(255,30,30,80);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
@@ -298,10 +306,11 @@ class Ui_settingswindow(object):
         icon3 = QIcon()
         icon3.addFile(u"icons/close.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.closeButton.setIcon(icon3)
-        self.minimizeButton = QPushButton(self.gridFrame_2)
+        self.minimizeButton = QPushButton(self.Title)
         self.minimizeButton.setObjectName(u"minimizeButton")
         self.minimizeButton.setGeometry(QRect(230, 0, 30, 21))
         self.minimizeButton.setStyleSheet(u"QPushButton {\n"
+"border: 1px solid rgba(255,255,255,40);\n"
 "background-color: rgba(255,255,255,20);\n"
 "}\n"
 "\n"
@@ -315,7 +324,7 @@ class Ui_settingswindow(object):
         icon4 = QIcon()
         icon4.addFile(u"icons/minimize.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.minimizeButton.setIcon(icon4)
-        self.labeltitle = QLabel(self.gridFrame_2)
+        self.labeltitle = QLabel(self.Title)
         self.labeltitle.setObjectName(u"labeltitle")
         self.labeltitle.setGeometry(QRect(10, 0, 91, 21))
         self.labeltitle.setStyleSheet(u"border: None;\n"

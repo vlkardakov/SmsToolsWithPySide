@@ -99,7 +99,7 @@ background-color: rgba(255,255,255,80);
     </item>
    </layout>
   </widget>
-  <widget class="QFrame" name="gridFrame_2">
+  <widget class="QFrame" name="Title">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -109,8 +109,7 @@ background-color: rgba(255,255,255,80);
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgba(255,255,255,20);
-border: 1px solid rgba(255,255,255,40);
+    <string notr="true">background-color: rgba(255,255,255,0);
 border-radius: 7;
 color: white;
 QPushButton {
@@ -125,7 +124,7 @@ QPushButton:pressed {
 background-color: rgba(255,255,255,80);
 }</string>
    </property>
-   <widget class="QPushButton" name="closeButton_3">
+   <widget class="QPushButton" name="closeButton">
     <property name="geometry">
      <rect>
       <x>150</x>
@@ -136,11 +135,12 @@ background-color: rgba(255,255,255,80);
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
+border: 1px solid rgba(255,255,255,40);
 background-color: rgba(255,255,255,20);
 }
 
 QPushButton:hover {
-background-color: rgba(255,10,10,80);
+background-color: rgba(255,30,30,80);
 }
 
 QPushButton:pressed {
@@ -166,6 +166,7 @@ background-color: rgba(255,255,255,80);
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
+border: 1px solid rgba(255,255,255,40);
 background-color: rgba(255,255,255,20);
 }
 
@@ -188,9 +189,9 @@ background-color: rgba(255,255,255,80);
    <widget class="QLabel" name="labeltitle">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>0</x>
       <y>0</y>
-      <width>101</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>

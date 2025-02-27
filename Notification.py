@@ -11,10 +11,29 @@ class Notification(QDialog):
         self.ui = Ui_Notification()
         self.ui.setupUi(self)
 
-        self.choice = None  # Переменная для хранения выбора пользователя
-
         self.ui.but2.setText("OK")
         self.ui.text.setText(text)
+        #настройки
+        self.settings = self.read_settings()
+        self.settings['port'] = None  # Настроить
+        self.canModem = False
+        self.incomingCount = 0
+        # инициализация видева
+        self.capture = cv2.VideoCapture(f"Files/backgrounds/{self.settings['theme']}.mp4")
+        self.snapshot = QPixmap()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        self.start_time = QTime.currentTime()
+
+
+        self.ui.closeButton.clicked.connect(self.close)
+        self.ui.minimizeButton.clicked.connect(self.showMinimized)
+
+        # запуск
+        self.timer.start(30)
+
+        self.setWindowFlags(Qt.FramelessWindowHint)  # titlebar
+        self.setAttribute(Qt.WA_TranslucentBackground)  # пусть фон будет прозрачным чтобы видет видева
 
         self.ui.but2.clicked.connect(self.but2)
 
@@ -42,9 +61,7 @@ class Notification(QDialog):
                     print(f"Ошибка в строке {line_num}: '{line}', ошибка: {e}")
                     continue
         return settings
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.dragPos = event.globalPosition().toPoint()
+
     def update_frame(self):
         if self.capture.isOpened():
             ret, frame = self.capture.read()
@@ -60,11 +77,22 @@ class Notification(QDialog):
                 image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
                 self.snapshot = QPixmap.fromImage(image)
                 self.update()
+
+    def mousePressEvent(self, event):
+        try:
+            if event.button() == Qt.LeftButton:
+                self.dragPos = event.globalPosition().toPoint()
+        except:
+            pass
+
     def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
-            self.dragPos = event.globalPosition().toPoint()
-            event.accept()
+        try:
+            if event.buttons() == Qt.LeftButton:
+                self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+                self.dragPos = event.globalPosition().toPoint()
+                event.accept()
+        except:
+            pass
     def paintEvent(self, event):
         if not self.snapshot.isNull():
             painter = QPainter(self)

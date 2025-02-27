@@ -33,7 +33,7 @@ class Continue(QDialog):
 
 
 
-        self.choice = None  # Переменная для хранения выбора пользователя
+        self.choice = None  #выбор пользователя
 
         self.ui.but1.setText(but1text)
         self.ui.but2.setText(but2text)
@@ -48,11 +48,11 @@ class Continue(QDialog):
 
     def but1(self):
         self.choice = False  # Запоминаем выбор
-        self.accept()  # Закрываем диалог и возвращаем 0
+        self.accept()#0
 
     def but2(self):
         self.choice = True  # Запоминаем выбор
-        self.accept()  # Закрываем диалог и возвращаем 1
+        self.accept()#1
 
     def get_choice(self):
         if self.exec() == QDialog.Accepted:
@@ -76,9 +76,22 @@ class Continue(QDialog):
                     print(f"Ошибка в строке {line_num}: '{line}', ошибка: {e}")
                     continue
         return settings
+
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.dragPos = event.globalPosition().toPoint()
+        try:
+            if event.button() == Qt.LeftButton and self.childAt(event.pos()) == self.ui.Title:
+                self.dragPos = event.globalPosition().toPoint()
+        except:
+            pass
+
+    def mouseMoveEvent(self, event):
+        try:
+            if event.buttons() == Qt.LeftButton and self.childAt(event.pos()) == self.ui.Title:
+                self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+                self.dragPos = event.globalPosition().toPoint()
+                event.accept()
+        except:
+            pass
     def update_frame(self):
         if self.capture.isOpened():
             ret, frame = self.capture.read()
@@ -94,11 +107,6 @@ class Continue(QDialog):
                 image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
                 self.snapshot = QPixmap.fromImage(image)
                 self.update()
-    def mouseMoveEvent(self, event):
-        if event.buttons() == Qt.LeftButton:
-            self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
-            self.dragPos = event.globalPosition().toPoint()
-            event.accept()
     def paintEvent(self, event):
         if not self.snapshot.isNull():
             painter = QPainter(self)
@@ -125,6 +133,6 @@ if __name__ == "__main__":
 
     choice = Continue("Продолжить?", "Нет!", "Кнчн!").get_choice()  # Показываем окно и ждем выбор пользователя
 
-    print(f"Выбор пользователя: {choice}")  # Выводим результат в консоль
+    print(f"Выбор пользователя: {choice}")
     exit()
     # sys.exit(app.exec())
