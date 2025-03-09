@@ -24,8 +24,8 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(600, 525)
-        MainWindow.setMinimumSize(QSize(600, 525))
+        MainWindow.resize(600, 530)
+        MainWindow.setMinimumSize(QSize(600, 530))
         MainWindow.setMaximumSize(QSize(600, 530))
         MainWindow.setCursor(QCursor(Qt.ArrowCursor))
         MainWindow.setMouseTracking(False)
@@ -193,7 +193,70 @@ class Ui_MainWindow(object):
         self.console = QTextBrowser(self.input_form)
         self.console.setObjectName(u"console")
         self.console.setGeometry(QRect(210, 160, 361, 241))
-        self.console.setStyleSheet(u"font: 11pt;")
+        self.console.setStyleSheet(u"QTextBrowser {\n"
+"font: 11pt;\n"
+"\n"
+"}\n"
+"\n"
+"/* \u0412\u0435\u0440\u0442\u0438\u043a\u0430\u043b\u044c\u043d\u044b\u0439 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440 */\n"
+"QScrollBar:vertical {\n"
+"    background: rgba(255, 255, 255, 10);  /* \u0424\u043e\u043d \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
+"    width: 10px;                          /* \u0428\u0438\u0440\u0438\u043d\u0430 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
+"    margin: 0px;\n"
+"    border-radius: 5px;                   /* \u0417\u0430\u043a\u0440\u0443\u0433\u043b\u0435\u043d\u0438\u0435 \u0443\u0433\u043b\u043e\u0432 */\n"
+"}\n"
+"\n"
+"/* \u041f\u043e\u043b\u0437\u0443\u043d\u043e\u043a \u0432\u0435\u0440\u0442\u0438\u043a\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
+"QScrollBar::handle:vertical {\n"
+"    background: rgba(255, 255, 255, 0);  /* \u0426\u0432\u0435\u0442 \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430"
+                        " */\n"
+"    min-height: 20px;                     /* \u041c\u0438\u043d\u0438\u043c\u0430\u043b\u044c\u043d\u0430\u044f \u0432\u044b\u0441\u043e\u0442\u0430 \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430 */\n"
+"    border-radius: 5px;                   /* \u0417\u0430\u043a\u0440\u0443\u0433\u043b\u0435\u043d\u0438\u0435 \u0443\u0433\u043b\u043e\u0432 \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430 */\n"
+"}\n"
+"\n"
+"\n"
+"/* \u041a\u043d\u043e\u043f\u043a\u0438 \u043f\u0440\u043e\u043a\u0440\u0443\u0442\u043a\u0438 (\u0441\u0442\u0440\u0435\u043b\u043a\u0438) */\n"
+"QScrollBar::sub-line:vertical,\n"
+"QScrollBar::add-line:vertical {\n"
+"    height: 0px;                          /* \u0423\u0431\u0438\u0440\u0430\u0435\u043c \u043a\u043d\u043e\u043f\u043a\u0438 \u043f\u0440\u043e\u043a\u0440\u0443\u0442\u043a\u0438 */\n"
+"}\n"
+"\n"
+"/* \u0413\u043e\u0440\u0438\u0437\u043e\u043d\u0442\u0430\u043b\u044c\u043d\u044b\u0439 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440 */\n"
+"QScrollBar:horizontal {\n"
+"   "
+                        " background: rgba(255, 255, 255, 10);\n"
+"    height: 10px;                         /* \u0412\u044b\u0441\u043e\u0442\u0430 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
+"    margin: 0px;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:horizontal {\n"
+"    background: rgba(255, 255, 255, 40);\n"
+"    min-width: 20px;                      /* \u041c\u0438\u043d\u0438\u043c\u0430\u043b\u044c\u043d\u0430\u044f \u0448\u0438\u0440\u0438\u043d\u0430 \u043f\u043e\u043b\u0437\u0443\u043d\u043a\u0430 */\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"QScrollBar::handle:horizontal:hover {\n"
+"    background: rgba(255, 255, 255, 60);\n"
+"}\n"
+"\n"
+"QScrollBar::handle:horizontal:pressed {\n"
+"    background: rgba(255, 255, 255, 80);\n"
+"}\n"
+"\n"
+"QScrollBar::sub-line:horizontal,\n"
+"QScrollBar::add-line:horizontal {\n"
+"    width: 0px;                           /* \u0423\u0431\u0438\u0440\u0430\u0435\u043c \u043a\u043d\u043e\u043f\u043a\u0438 \u043f\u0440\u043e\u043a\u0440\u0443\u0442\u043a\u0438"
+                        " */\n"
+"}\n"
+"\n"
+"/* \u0423\u0431\u0438\u0440\u0430\u0435\u043c \u0444\u043e\u043d \u0443 \u043a\u0440\u0430\u0451\u0432 \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
+"QScrollBar::sub-page:vertical,\n"
+"QScrollBar::add-page:vertical,\n"
+"QScrollBar::sub-page:horizontal,\n"
+"QScrollBar::add-page:horizontal {\n"
+"    background: rgba(255, 255, 255, 50);  /* \u0424\u043e\u043d \u0441\u043a\u0440\u043e\u043b\u043b\u0431\u0430\u0440\u0430 */\n"
+"}")
         self.settings = QPushButton(self.input_form)
         self.settings.setObjectName(u"settings")
         self.settings.setGeometry(QRect(440, 10, 131, 31))
@@ -416,11 +479,11 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "QPushButton:hover {\n"
-"background-color: rgba(255,255,30,80);\n"
+"background-color: rgba(5,255,30,80);\n"
 "}\n"
 "\n"
 "QPushButton:pressed {\n"
-"background-color: rgba(255,255,60,100);\n"
+"background-color: rgba(10,255,60,100);\n"
 "}")
         icon10 = QIcon()
         icon10.addFile(u"Files/icons/restart.svg", QSize(), QIcon.Normal, QIcon.Off)

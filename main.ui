@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>525</height>
+    <height>530</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>600</width>
-    <height>525</height>
+    <height>530</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -286,7 +286,67 @@ background-color: rgba(255,255,255,80);
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">font: 11pt;</string>
+      <string notr="true">QTextBrowser {
+font: 11pt;
+
+}
+
+/* Вертикальный скроллбар */
+QScrollBar:vertical {
+    background: rgba(255, 255, 255, 10);  /* Фон скроллбара */
+    width: 10px;                          /* Ширина скроллбара */
+    margin: 0px;
+    border-radius: 5px;                   /* Закругление углов */
+}
+
+/* Ползунок вертикального скроллбара */
+QScrollBar::handle:vertical {
+    background: rgba(255, 255, 255, 0);  /* Цвет ползунка */
+    min-height: 20px;                     /* Минимальная высота ползунка */
+    border-radius: 5px;                   /* Закругление углов ползунка */
+}
+
+
+/* Кнопки прокрутки (стрелки) */
+QScrollBar::sub-line:vertical,
+QScrollBar::add-line:vertical {
+    height: 0px;                          /* Убираем кнопки прокрутки */
+}
+
+/* Горизонтальный скроллбар */
+QScrollBar:horizontal {
+    background: rgba(255, 255, 255, 10);
+    height: 10px;                         /* Высота скроллбара */
+    margin: 0px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgba(255, 255, 255, 40);
+    min-width: 20px;                      /* Минимальная ширина ползунка */
+    border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: rgba(255, 255, 255, 60);
+}
+
+QScrollBar::handle:horizontal:pressed {
+    background: rgba(255, 255, 255, 80);
+}
+
+QScrollBar::sub-line:horizontal,
+QScrollBar::add-line:horizontal {
+    width: 0px;                           /* Убираем кнопки прокрутки */
+}
+
+/* Убираем фон у краёв скроллбара */
+QScrollBar::sub-page:vertical,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:horizontal,
+QScrollBar::add-page:horizontal {
+    background: rgba(255, 255, 255, 50);  /* Фон скроллбара */
+}</string>
      </property>
      <property name="html">
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -699,11 +759,11 @@ background-color: rgba(255,255,255,20);
 }
 
 QPushButton:hover {
-background-color: rgba(255,255,30,80);
+background-color: rgba(5,255,30,80);
 }
 
 QPushButton:pressed {
-background-color: rgba(255,255,60,100);
+background-color: rgba(10,255,60,100);
 }</string>
      </property>
      <property name="text">
