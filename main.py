@@ -516,8 +516,8 @@ class SmsTools(MyWindow):
                             self.conprint("Модем подключен.")
                             self.canModem = True
                             break
-                    except serial.SerialException:
-                        pass
+                    except serial.SerialException as e:
+                        print(self.conprint(f'ОШИБКА: {e}'))
     def num_to_name(self, num):
         # преобразует номер в имя
         wb = self.files.contacts
