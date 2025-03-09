@@ -416,6 +416,7 @@ class SmsTools(MyWindow):
         self.ui.settings.clicked.connect(self.openSettings)
 
         self.load_contacts(search_terms="0 1 2 3 4 5 6 7 8 9")
+        self.kill_connect_manager()
         self.setup_modem()
     def mousePressEvent(self, event):
         try:
