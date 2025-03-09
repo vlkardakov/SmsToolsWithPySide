@@ -18,7 +18,7 @@ from PySide6.QtWidgets import QApplication, QDialog, QMainWindow, QTableWidgetIt
 from gsmmodem.modem import GsmModem
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import PatternFill
-
+from sys import *
 from ui_continue import Ui_Form
 from ui_main import Ui_MainWindow
 from ui_notification import Ui_Notification
